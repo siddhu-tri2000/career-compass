@@ -98,7 +98,7 @@ export default function HomePage() {
           value={resume}
           onChange={(e) => setResume(e.target.value)}
           placeholder="Paste your full CV here — name, summary, experience, skills, education..."
-          className="h-72 w-full resize-y rounded-lg border border-neutral-300 bg-neutral-50 p-4 font-mono text-sm leading-relaxed focus:border-neutral-900 focus:bg-white focus:outline-none"
+          className="h-72 w-full resize-y rounded-lg border border-neutral-300 bg-neutral-50 p-4 font-mono text-sm leading-relaxed text-neutral-900 placeholder:text-neutral-400 focus:border-neutral-900 focus:bg-white focus:outline-none"
         />
         <div className="mt-2 flex items-center justify-between text-xs text-neutral-500">
           <span>{charCount.toLocaleString()} characters</span>
