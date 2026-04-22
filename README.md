@@ -1,36 +1,101 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🔥 CV Roast
 
-## Getting Started
+> Paste your CV. Get roasted. Get fixed. Get told where to apply.
 
-First, run the development server:
+A free, no-login AI tool that gives you brutally honest (or kind, your choice) feedback on your resume — and tells you exactly which jobs you should be applying for.
+
+**Built with:** Next.js 15 · TypeScript · Tailwind · Google Gemini 2.5 Flash
+
+---
+
+## ✨ Features
+
+- 🔥 **Three tones** — Roast (funny), Honest (professional), Encouraging (supportive)
+- 📊 **Resume Health Score** — AI-estimated 0–100 score with section-by-section breakdown
+- 🎯 **Top 3 fixes** — actionable, specific suggestions
+- 🔒 **Private by default** — no login, no database, no resume storage
+- 💸 **Free to run** — uses Google Gemini's free tier (1,500 analyses/day)
+
+### Coming next
+
+- ✏️ Section rewriter (before / after)
+- 🎯 Job role matcher (Apply / Stretch / Pivot tiers)
+- 🧩 Skill gap map
+- 📄 PDF upload
+- 🔑 BYOK ("Power Mode") — bring your own Gemini / Claude / OpenAI / Groq key
+
+---
+
+## 🚀 Run locally
+
+### 1. Get a free Gemini API key
+Visit [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and create one. **No credit card required.**
+
+> ⚠️ The free tier may use your inputs to improve Google's models. Don't paste highly sensitive resumes against the free tier — switch to a billed Gemini key for production.
+
+### 2. Install & configure
+
+```bash
+git clone https://github.com/siddhu-tri2000/cv-roast.git
+cd cv-roast
+npm install
+cp .env.example .env.local
+# Edit .env.local and paste your GEMINI_API_KEY
+```
+
+### 3. Run
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📁 Project structure
 
-## Learn More
+```
+src/
+├── app/
+│   ├── api/analyse/route.ts   # POST endpoint — calls Gemini
+│   ├── layout.tsx             # Root layout + metadata
+│   ├── page.tsx               # Main UI (tone picker, textarea, results)
+│   └── globals.css            # Tailwind base
+└── lib/
+    ├── prompts.ts             # Prompt builder + result types
+    └── gemini.ts              # Gemini REST client + JSON-schema enforcement
+```
 
-To learn more about Next.js, take a look at the following resources:
+The LLM call lives behind a thin function so swapping providers (Groq, Anthropic, OpenAI) later is one file.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 🛣️ Roadmap
 
-## Deploy on Vercel
+**MVP phases:**
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. ✅ **Phase 0** — Roast, tone toggle, score, section breakdown _(this commit)_
+2. ⏳ Phase 1 — Section rewriter + ATS keyword analysis
+3. ⏳ Phase 2 — Job role matcher (Tier 1/2/3) + skill gap map
+4. ⏳ Phase 3 — PDF upload, mobile polish, one-pager generator
+5. ⏳ Phase 4 — Rate limiting, BYOK Power Mode, public launch
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🔐 Privacy
+
+- Your CV is sent to Google's Gemini API for analysis.
+- It is **not** stored on our servers — there is no database.
+- Free-tier Gemini may use inputs to improve Google's models. We disclose this in the UI.
+- For maximum privacy, deploy this yourself with your own billed Gemini key.
+
+---
+
+## 📝 License
+
+MIT — do whatever you want with it. Attribution appreciated.
+
+---
+
+_Built with Claude AI assistance · Inspired by every resume that deserved better feedback._
