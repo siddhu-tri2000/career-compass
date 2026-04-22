@@ -39,8 +39,8 @@ Visit [aistudio.google.com/apikey](https://aistudio.google.com/apikey) and creat
 ### 2. Install & configure
 
 ```bash
-git clone https://github.com/siddhu-tri2000/cv-roast.git
-cd cv-roast
+git clone https://github.com/siddhu-tri2000/career-compass.git
+cd career-compass
 npm install
 cp .env.example .env.local
 # Edit .env.local and paste your GEMINI_API_KEY

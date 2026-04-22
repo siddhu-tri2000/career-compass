@@ -188,7 +188,7 @@ export default function HomePage() {
       <footer className="mt-16 border-t border-neutral-200 pt-6 text-center text-xs text-neutral-500">
         Built with Next.js · Google Gemini · Open source ·{" "}
         <a
-          href="https://github.com/siddhu-tri2000/cv-roast"
+          href="https://github.com/siddhu-tri2000/career-compass"
           className="underline hover:text-neutral-900"
         >
           GitHub
