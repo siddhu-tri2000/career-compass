@@ -241,10 +241,22 @@ export default function HomePage() {
       </div>
 
       <Footer onShare={() => setShareOpen(true)} />
-      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} url={SITE_URL} />
+      <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} url={buildShareUrl(matchResult)} />
       {hasResults && <SoftLoginToast />}
     </main>
   );
+}
+
+function buildShareUrl(result: MatchResult | null): string {
+  if (!result) return SITE_URL;
+  const top = result.apply_today?.[0];
+  if (!top) return SITE_URL;
+  const params = new URLSearchParams();
+  params.set("r", top.title.slice(0, 60));
+  if (result.profile?.seniority) params.set("l", String(result.profile.seniority).slice(0, 30));
+  const skills = (result.profile?.top_skills ?? []).slice(0, 5).join(",");
+  if (skills) params.set("t", skills.slice(0, 200));
+  return `${SITE_URL}/s?${params.toString()}`;
 }
 
 /* ---------- TOP NAV ---------- */
