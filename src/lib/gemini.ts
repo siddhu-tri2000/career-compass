@@ -144,7 +144,7 @@ export async function matchRolesWithGemini(
     buildMatchPrompt(resume, targetRole),
     MATCH_SCHEMA,
     apiKey,
-    { temperature: 0.3 },
+    { temperature: 0.3, maxOutputTokens: 12_000 },
   );
 }
 

@@ -89,9 +89,25 @@ export interface RoleSuggestion {
   why_you_fit: string;
 }
 
+export type ResourceType = "youtube" | "course" | "docs" | "article" | "practice";
+
+export interface LearningResource {
+  title: string;
+  provider: string;
+  type: ResourceType;
+  search_query: string;
+  time_estimate: string;
+}
+
+export interface GapWithResources {
+  skill: string;
+  why_it_matters: string;
+  resources: LearningResource[];
+}
+
 export interface StretchRole {
   title: string;
-  gaps: string[];
+  gaps: GapWithResources[];
   estimated_time_to_ready: string;
 }
 
@@ -105,6 +121,7 @@ export interface SkillGapItem {
   skill: string;
   severity: "critical" | "important" | "nice_to_have";
   how_to_close: string;
+  resources: LearningResource[];
 }
 
 export interface CandidateProfile {
@@ -150,7 +167,21 @@ Return a JSON object with this exact shape (no extra keys, no markdown, no prose
   "stretch_roles": [
     {
       "title": "<role 1-2 levels up>",
-      "gaps": ["<specific gap 1>", "<specific gap 2>"],
+      "gaps": [
+        {
+          "skill": "<specific missing skill or experience>",
+          "why_it_matters": "<one sentence on why closing this gap unlocks the role>",
+          "resources": [
+            {
+              "title": "<concrete resource name e.g. 'Kubernetes for Developers crash course' — be specific>",
+              "provider": "<e.g. freeCodeCamp | TechWorld with Nana | Google Cloud Skills Boost | Kubernetes Official Docs | NPTEL | Coursera (free audit) | YouTube>",
+              "type": "<one of: youtube | course | docs | article | practice>",
+              "search_query": "<exact query a user would type to find this on YouTube/Google — keep under 80 chars and use real terms>",
+              "time_estimate": "<e.g. '12 min', '4 hours', '2 weeks · 30 min/day'>"
+            }
+          ]
+        }
+      ],
       "estimated_time_to_ready": "<e.g. 6-12 months>"
     }
   ],
@@ -166,7 +197,20 @@ Return a JSON object with this exact shape (no extra keys, no markdown, no prose
     "target": "${targetRole}",
     "overall_readiness": <integer 0-100>,
     "gaps": [
-      { "skill": "<missing skill or experience>", "severity": "critical|important|nice_to_have", "how_to_close": "<specific actionable advice>" }
+      {
+        "skill": "<missing skill or experience>",
+        "severity": "critical|important|nice_to_have",
+        "how_to_close": "<specific actionable advice>",
+        "resources": [
+          {
+            "title": "<concrete resource name>",
+            "provider": "<e.g. freeCodeCamp | NPTEL | TechWorld with Nana | Official Docs | YouTube>",
+            "type": "<youtube | course | docs | article | practice>",
+            "search_query": "<exact query under 80 chars>",
+            "time_estimate": "<e.g. '20 min', '3 hours', '1 week · 45 min/day'>"
+          }
+        ]
+      }
     ],
     "summary": "<2-3 sentence honest assessment of where they stand>"
   }` : "null"}
@@ -174,6 +218,11 @@ Return a JSON object with this exact shape (no extra keys, no markdown, no prose
 
 Rules:
 - Provide 3 apply_today roles, 2 stretch_roles, 2 pivot_roles.
+- For EVERY gap (in stretch_roles AND target_role_gap): include 2-3 learning resources.
+- Resources MUST mix types — at least one free YouTube video and one practice/docs link per gap.
+- PREFER free, India-accessible resources: YouTube channels (TechWorld with Nana, freeCodeCamp, Hitesh Choudhary, Akshay Saini, Kunal Kushwaha, ThePrimeagen, Fireship, MIT OCW, NPTEL), official docs (MDN, Kubernetes.io, AWS Skill Builder free tier, Google Cloud Skills Boost free), free courses (freeCodeCamp curriculum, Coursera audit mode, edX audit), practice platforms (LeetCode, NeetCode, Frontend Mentor, Roadmap.sh, Exercism).
+- DO NOT invent URLs. ONLY provide search_query — the UI will turn it into a YouTube/Google search link. Search queries must use real, current terminology (no fictional course names).
+- Time estimates must be realistic micro-commitments respecting Indian mid-career professionals' bandwidth (e.g., '15 min/day for 2 weeks' beats '40 hours').
 - Use REAL, current job titles. Do NOT invent companies. Do NOT quote salary bands.
 - Be specific about gaps. "More leadership" is bad. "Experience managing managers, not just ICs" is good.
 - For 'severity': critical = blocks them entirely; important = noticeable disadvantage; nice_to_have = polish.
@@ -216,7 +265,31 @@ export const MATCH_SCHEMA = {
         type: "object",
         properties: {
           title: { type: "string" },
-          gaps: { type: "array", items: { type: "string" } },
+          gaps: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                skill: { type: "string" },
+                why_it_matters: { type: "string" },
+                resources: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      title: { type: "string" },
+                      provider: { type: "string" },
+                      type: { type: "string", enum: ["youtube", "course", "docs", "article", "practice"] },
+                      search_query: { type: "string" },
+                      time_estimate: { type: "string" },
+                    },
+                    required: ["title", "provider", "type", "search_query", "time_estimate"],
+                  },
+                },
+              },
+              required: ["skill", "why_it_matters", "resources"],
+            },
+          },
           estimated_time_to_ready: { type: "string" },
         },
         required: ["title", "gaps", "estimated_time_to_ready"],
@@ -249,8 +322,22 @@ export const MATCH_SCHEMA = {
               skill: { type: "string" },
               severity: { type: "string", enum: ["critical", "important", "nice_to_have"] },
               how_to_close: { type: "string" },
+              resources: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    title: { type: "string" },
+                    provider: { type: "string" },
+                    type: { type: "string", enum: ["youtube", "course", "docs", "article", "practice"] },
+                    search_query: { type: "string" },
+                    time_estimate: { type: "string" },
+                  },
+                  required: ["title", "provider", "type", "search_query", "time_estimate"],
+                },
+              },
             },
-            required: ["skill", "severity", "how_to_close"],
+            required: ["skill", "severity", "how_to_close", "resources"],
           },
         },
         summary: { type: "string" },

@@ -5,6 +5,7 @@ import type {
   MatchResult,
   RoastResult,
   Tone,
+  LearningResource,
 } from "@/lib/prompts";
 import { buildJobLinks } from "@/lib/jobLinks";
 import ShareModal from "@/components/ShareModal";
@@ -691,12 +692,17 @@ function ResultsView(p: ResultsProps) {
                           {r.estimated_time_to_ready}
                         </span>
                       </div>
-                      <div className="mt-2 text-xs font-bold uppercase text-neutral-500">
-                        What you&apos;re missing
+                      <div className="mt-3 space-y-3">
+                        {r.gaps.map((g, j) => (
+                          <div key={j} className="rounded-lg border border-amber-200 bg-amber-50/60 p-3">
+                            <div className="font-semibold text-neutral-900">🎯 {g.skill}</div>
+                            <div className="mt-0.5 text-sm text-neutral-700">{g.why_it_matters}</div>
+                            {g.resources?.length > 0 && (
+                              <LearnResources resources={g.resources} />
+                            )}
+                          </div>
+                        ))}
                       </div>
-                      <ul className="mt-1 list-inside list-disc space-y-1 text-sm text-neutral-700">
-                        {r.gaps.map((g, j) => <li key={j}>{g}</li>)}
-                      </ul>
                       <JobLinksRow role={r.title} location={p.location} />
                     </RoleCard>
                   ))}
@@ -820,6 +826,57 @@ function JobLinksRow({ role, location }: { role: string; location: string }) {
   );
 }
 
+function resourceUrl(r: LearningResource): string {
+  const q = encodeURIComponent(r.search_query);
+  if (r.type === "youtube") return `https://www.youtube.com/results?search_query=${q}`;
+  return `https://www.google.com/search?q=${q}`;
+}
+
+function resourceIcon(t: LearningResource["type"]): string {
+  switch (t) {
+    case "youtube": return "▶️";
+    case "course": return "🎓";
+    case "docs": return "📘";
+    case "article": return "📰";
+    case "practice": return "🛠";
+  }
+}
+
+function LearnResources({ resources }: { resources: LearningResource[] }) {
+  return (
+    <div className="mt-2.5 border-t border-neutral-200/70 pt-2.5">
+      <div className="mb-1.5 flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-indigo-700">
+        <span>📚</span>
+        <span>Learn this — free, India-friendly</span>
+      </div>
+      <div className="space-y-1.5">
+        {resources.map((r, i) => (
+          <a
+            key={i}
+            href={resourceUrl(r)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group flex items-start gap-2 rounded-md border border-neutral-200 bg-white p-2 text-left transition hover:-translate-y-0.5 hover:border-indigo-400 hover:shadow-md hover:shadow-indigo-100"
+          >
+            <span className="text-base leading-none">{resourceIcon(r.type)}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-semibold text-neutral-900 group-hover:text-indigo-800">
+                {r.title}
+              </span>
+              <span className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-neutral-600">
+                <span className="font-medium text-neutral-700">{r.provider}</span>
+                <span className="text-neutral-300">·</span>
+                <span>⏱ {r.time_estimate}</span>
+              </span>
+            </span>
+            <span aria-hidden className="self-center text-neutral-400 transition group-hover:translate-x-0.5 group-hover:text-indigo-600">↗</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function TargetRoleGapPanel({
   gap,
   location,
@@ -867,6 +924,7 @@ function TargetRoleGapPanel({
               </span>
             </div>
             <div className="mt-1 text-sm">{g.how_to_close}</div>
+            {g.resources?.length > 0 && <LearnResources resources={g.resources} />}
           </div>
         ))}
       </div>
