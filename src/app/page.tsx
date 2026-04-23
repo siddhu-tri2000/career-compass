@@ -11,6 +11,8 @@ import { buildJobLinks } from "@/lib/jobLinks";
 import ShareModal from "@/components/ShareModal";
 import UserMenu from "@/components/UserMenu";
 import CvInput from "@/components/CvInput";
+import AuthModal from "@/components/AuthModal";
+import { getBrowserSupabase } from "@/lib/supabase/browser";
 
 const SITE_URL = "https://career-compass-orpin-tau.vercel.app";
 const DRAFT_KEY = "cc:draft:v1";
@@ -240,6 +242,7 @@ export default function HomePage() {
 
       <Footer onShare={() => setShareOpen(true)} />
       <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} url={SITE_URL} />
+      {hasResults && <SoftLoginToast />}
     </main>
   );
 }
@@ -1332,3 +1335,89 @@ function DailyPulseCard() {
     </section>
   );
 }
+
+const SOFT_LOGIN_DISMISS_KEY = "cc:softlogin:dismissed:v1";
+
+function SoftLoginToast() {
+  const [show, setShow] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const supabase = getBrowserSupabase();
+    (async () => {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (cancelled) return;
+        if (data.user) return;
+        const dismissedAt = Number(localStorage.getItem(SOFT_LOGIN_DISMISS_KEY) ?? 0);
+        // Re-show after 7 days even if dismissed
+        if (dismissedAt && Date.now() - dismissedAt < 7 * 24 * 3600 * 1000) return;
+        setTimeout(() => {
+          if (!cancelled) setShow(true);
+        }, 4000);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  function dismiss() {
+    try {
+      localStorage.setItem(SOFT_LOGIN_DISMISS_KEY, String(Date.now()));
+    } catch {
+      // ignore
+    }
+    setShow(false);
+  }
+
+  if (!show) return null;
+
+  return (
+    <>
+      <div
+        role="dialog"
+        aria-label="Save your map"
+        className="pointer-events-auto fixed inset-x-3 bottom-4 z-40 mx-auto max-w-md rounded-2xl border-2 border-indigo-300 bg-white/95 p-4 shadow-2xl shadow-indigo-300/40 backdrop-blur sm:right-6 sm:left-auto sm:bottom-6"
+        style={{ animation: "fadeUp 0.4s ease-out both" }}
+      >
+        <div className="flex items-start gap-3">
+          <div className="text-2xl">💾</div>
+          <div className="flex-1">
+            <div className="text-sm font-extrabold text-neutral-900">Save this map?</div>
+            <p className="mt-0.5 text-xs leading-snug text-neutral-700">
+              Sign in to keep your career map, track skill progress, and get a
+              personalised weekly digest. Free forever.
+            </p>
+            <div className="mt-2.5 flex flex-wrap gap-2">
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="rounded-lg bg-indigo-700 px-3 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-800"
+              >
+                Sign in (1 click)
+              </button>
+              <button
+                onClick={dismiss}
+                className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-xs font-medium text-neutral-700 hover:border-neutral-500"
+              >
+                Not now
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={dismiss}
+            aria-label="Dismiss"
+            className="-mr-1 -mt-1 rounded-md p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
+    </>
+  );
+}
+
