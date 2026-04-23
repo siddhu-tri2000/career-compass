@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, Suspense } from "react";
+import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import CvInput from "@/components/CvInput";
@@ -171,8 +171,8 @@ function StudioPageInner() {
           {error && <span className="text-sm font-semibold text-red-700">{error}</span>}
         </div>
 
-        {polishResult && <PolishResultsView result={polishResult} originalResume={resume} />}
-        {tailorResult && <TailorResultsView result={tailorResult} originalResume={resume} />}
+        {polishResult && <PolishResultsView result={polishResult} />}
+        {tailorResult && <TailorResultsView result={tailorResult} />}
       </main>
     </div>
   );
@@ -188,7 +188,7 @@ export default function StudioPage() {
 
 /* ==================== Polish Results ==================== */
 
-function PolishResultsView({ result, originalResume }: { result: PolishOutput; originalResume: string }) {
+function PolishResultsView({ result }: { result: PolishOutput }) {
   return (
     <section className="mt-10 space-y-6">
       <ScoreCard
@@ -225,18 +225,14 @@ function PolishResultsView({ result, originalResume }: { result: PolishOutput; o
 
       <BulletDiffList bullets={result.rewritten_bullets} />
 
-      <DownloadDocxButton
-        polish={result}
-        originalResume={originalResume}
-        baseFilename="CareerCompass-ATS-Resume"
-      />
+      <DownloadDocxButton polish={result} baseFilename="CareerCompass-ATS-Resume" />
     </section>
   );
 }
 
 /* ==================== Tailor Results ==================== */
 
-function TailorResultsView({ result, originalResume }: { result: TailorOutput; originalResume: string }) {
+function TailorResultsView({ result }: { result: TailorOutput }) {
   return (
     <section className="mt-10 space-y-6">
       <ScoreCard
@@ -284,11 +280,7 @@ function TailorResultsView({ result, originalResume }: { result: TailorOutput; o
         </Panel>
       )}
 
-      <DownloadDocxButton
-        tailor={result}
-        originalResume={originalResume}
-        baseFilename="CareerCompass-Tailored-Resume"
-      />
+      <DownloadDocxButton tailor={result} baseFilename="CareerCompass-Tailored-Resume" />
     </section>
   );
 }
@@ -520,35 +512,30 @@ function CopyButton({ text, className = "" }: { text: string; className?: string
 function DownloadDocxButton({
   polish,
   tailor,
-  originalResume,
   baseFilename,
 }: {
   polish?: PolishOutput;
   tailor?: TailorOutput;
-  originalResume: string;
   baseFilename: string;
 }) {
   const [downloading, setDownloading] = useState(false);
-
-  const payload = useMemo(
-    () => buildDocxPayload({ polish, tailor, originalResume, baseFilename }),
-    [polish, tailor, originalResume, baseFilename],
-  );
+  const structured = polish?.structured_resume || tailor?.structured_resume;
 
   async function handleDownload() {
+    if (!structured) return;
     setDownloading(true);
     try {
       const res = await fetch("/api/studio/export", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ structured_resume: structured, filename: baseFilename }),
       });
       if (!res.ok) throw new Error("Download failed");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${payload.filename}.docx`;
+      a.download = `${baseFilename}.docx`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -560,13 +547,15 @@ function DownloadDocxButton({
     }
   }
 
+  if (!structured) return null;
+
   return (
     <div className="rounded-2xl border border-purple-300 bg-gradient-to-r from-purple-100 to-indigo-100 p-5 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <div className="text-base font-bold text-neutral-900">📄 Download as ATS-safe .docx</div>
           <p className="text-sm text-neutral-700">
-            Single-column layout, no tables, no graphics — what every ATS expects.
+            Single-column, dates right-aligned, no tables — exactly what every ATS expects.
           </p>
         </div>
         <button
@@ -579,80 +568,4 @@ function DownloadDocxButton({
       </div>
     </div>
   );
-}
-
-interface DocxPayload {
-  full_name: string;
-  contact_line: string;
-  summary: string;
-  skills: string[];
-  experience: { section: string; bullets: string[] }[];
-  education: { section: string; bullets: string[] }[];
-  filename: string;
-}
-
-function buildDocxPayload({
-  polish,
-  tailor,
-  originalResume,
-  baseFilename,
-}: {
-  polish?: PolishOutput;
-  tailor?: TailorOutput;
-  originalResume: string;
-  baseFilename: string;
-}): DocxPayload {
-  const { fullName, contact } = parseHeaderFromResume(originalResume);
-  const summary = (polish?.rewritten_summary || tailor?.rewritten_summary || "").trim();
-
-  const skills = tailor
-    ? [...new Set(tailor.hard_skills_matched.map((c) => c.keyword))]
-    : extractSkillsFromResume(originalResume);
-
-  const bullets = (polish?.rewritten_bullets || tailor?.rewritten_bullets || []) as BulletRewrite[];
-
-  const grouped = new Map<string, string[]>();
-  for (const b of bullets) {
-    const list = grouped.get(b.section) || [];
-    list.push(b.rewritten);
-    grouped.set(b.section, list);
-  }
-  const experience = Array.from(grouped.entries())
-    .filter(([sec]) => !/education|degree|university|college|school/i.test(sec))
-    .map(([section, bs]) => ({ section, bullets: bs }));
-  const education = Array.from(grouped.entries())
-    .filter(([sec]) => /education|degree|university|college|school/i.test(sec))
-    .map(([section, bs]) => ({ section, bullets: bs }));
-
-  return {
-    full_name: fullName,
-    contact_line: contact,
-    summary,
-    skills,
-    experience,
-    education,
-    filename: baseFilename,
-  };
-}
-
-function parseHeaderFromResume(resume: string): { fullName: string; contact: string } {
-  const lines = resume.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
-  const first = lines[0] || "Your Name";
-  const fullName = first.length < 60 ? first : "Your Name";
-  const contactLine = lines.slice(1, 6).find((l) =>
-    /@|\+?\d{2,}[\s\d-]{6,}|linkedin\.com|github\.com/i.test(l),
-  );
-  return { fullName, contact: contactLine || "" };
-}
-
-function extractSkillsFromResume(resume: string): string[] {
-  const m = resume.match(/(?:^|\n)\s*(?:skills|technical skills|core skills)\s*[:\n]+([\s\S]{0,500})/i);
-  if (!m) return [];
-  const block = m[1]
-    .split(/\n\n|\n[A-Z]/)[0]
-    .replace(/[•·\-*]/g, ",")
-    .split(/[,\n]/)
-    .map((s) => s.trim())
-    .filter((s) => s.length > 1 && s.length < 40);
-  return [...new Set(block)].slice(0, 30);
 }

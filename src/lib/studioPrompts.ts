@@ -23,6 +23,62 @@ export interface BulletRewrite {
   why_better: string;
 }
 
+export interface ResumeContact {
+  email: string;
+  phone: string;
+  location: string;
+  linkedin: string;
+  github: string;
+  portfolio: string;
+}
+
+export interface ResumeExperience {
+  title: string;
+  company: string;
+  location: string;
+  start_date: string;
+  end_date: string; // "Present" if current
+  bullets: string[];
+}
+
+export interface ResumeEducation {
+  degree: string;
+  institution: string;
+  location: string;
+  start_date: string;
+  end_date: string;
+  details: string;
+}
+
+export interface ResumeProject {
+  name: string;
+  description: string;
+  link: string;
+  bullets: string[];
+}
+
+export interface ResumeCertification {
+  name: string;
+  issuer: string;
+  date: string;
+}
+
+export interface ResumeSkillGroup {
+  category: string;
+  items: string[];
+}
+
+export interface StructuredResume {
+  full_name: string;
+  contact: ResumeContact;
+  summary: string;
+  skills: ResumeSkillGroup[];
+  experience: ResumeExperience[];
+  education: ResumeEducation[];
+  projects: ResumeProject[];
+  certifications: ResumeCertification[];
+}
+
 export interface PolishOutput {
   ats_score: AtsScoreBreakdown;
   one_line_summary: string;
@@ -30,6 +86,7 @@ export interface PolishOutput {
   rewritten_bullets: BulletRewrite[];
   rewritten_summary: string | null;
   top_suggestions: string[];
+  structured_resume: StructuredResume;
 }
 
 export interface KeywordChip {
@@ -48,6 +105,7 @@ export interface TailorOutput {
   rewritten_bullets: BulletRewrite[];
   ats_format_warnings: string[];
   cover_letter_hook: string;
+  structured_resume: StructuredResume;
 }
 
 const ATS_SCORE_RUBRIC = `Score 0-100 on FOUR axes (and an overall):
@@ -60,7 +118,110 @@ overall = weighted avg (impact 0.35, keywords 0.25, ats_format 0.25, brevity 0.1
 const ANTI_HALLUCINATION = `CRITICAL: ANTI-HALLUCINATION
 - Use ONLY facts present in the resume. NEVER invent numbers, dates, employers, achievements, or technologies.
 - If a bullet has no numbers and you can't truthfully add one, rewrite it for clarity but DO NOT make up metrics.
-- If you genuinely cannot improve a bullet without inventing facts, you may keep "rewritten" identical to "original" and explain in why_better.`;
+- If you genuinely cannot improve a bullet without inventing facts, you may keep "rewritten" identical to "original" and explain in why_better.
+- For structured_resume: extract EVERY job, project, education entry, certification you find. Preserve all dates, company names, locations EXACTLY as written. If a field is missing, use empty string "". Never fabricate.`;
+
+const STRUCTURED_RESUME_INSTRUCTIONS = `STRUCTURED RESUME OUTPUT
+You must also output a fully-structured rewrite of the resume in "structured_resume". This is what the user will download as a clean ATS-ready Word document.
+
+Rules for structured_resume:
+- full_name: extracted exactly from the resume
+- contact: parse email, phone, location, linkedin URL, github URL, portfolio URL. Empty string for any not found.
+- summary: a polished 2-3 line professional summary (use rewritten_summary if you wrote one, else write one fresh from facts in the CV)
+- skills: group skills into 2-5 logical categories like "Languages", "Frameworks", "Tools", "Cloud", "Soft Skills". Each category has an "items" array.
+- experience: every job in reverse chronological order. For each: title, company, location, start_date (e.g. "Jan 2022"), end_date (e.g. "Present" or "Mar 2024"), and 3-6 rewritten bullets (action verb start, quantified, ATS-safe). Use the rewrites you already produced where applicable.
+- education: every education entry. degree, institution, location, dates, optional details (GPA, honors, relevant coursework).
+- projects: notable projects if listed in the CV. Each with name, brief description, link if any, and 1-3 bullets. Empty array if no projects in CV.
+- certifications: any certs listed. Empty array if none.
+- DO NOT include sections that have zero entries — return empty arrays.
+- The structured_resume must be COMPLETE — it is the final downloadable artefact. Don't skip jobs, don't summarise, don't combine entries.`;
+
+const STRUCTURED_RESUME_SCHEMA_FRAGMENT = {
+  type: "object",
+  properties: {
+    full_name: { type: "string" },
+    contact: {
+      type: "object",
+      properties: {
+        email: { type: "string" },
+        phone: { type: "string" },
+        location: { type: "string" },
+        linkedin: { type: "string" },
+        github: { type: "string" },
+        portfolio: { type: "string" },
+      },
+      required: ["email", "phone", "location", "linkedin", "github", "portfolio"],
+    },
+    summary: { type: "string" },
+    skills: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          category: { type: "string" },
+          items: { type: "array", items: { type: "string" } },
+        },
+        required: ["category", "items"],
+      },
+    },
+    experience: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          title: { type: "string" },
+          company: { type: "string" },
+          location: { type: "string" },
+          start_date: { type: "string" },
+          end_date: { type: "string" },
+          bullets: { type: "array", items: { type: "string" } },
+        },
+        required: ["title", "company", "location", "start_date", "end_date", "bullets"],
+      },
+    },
+    education: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          degree: { type: "string" },
+          institution: { type: "string" },
+          location: { type: "string" },
+          start_date: { type: "string" },
+          end_date: { type: "string" },
+          details: { type: "string" },
+        },
+        required: ["degree", "institution", "location", "start_date", "end_date", "details"],
+      },
+    },
+    projects: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          description: { type: "string" },
+          link: { type: "string" },
+          bullets: { type: "array", items: { type: "string" } },
+        },
+        required: ["name", "description", "link", "bullets"],
+      },
+    },
+    certifications: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          issuer: { type: "string" },
+          date: { type: "string" },
+        },
+        required: ["name", "issuer", "date"],
+      },
+    },
+  },
+  required: ["full_name", "contact", "summary", "skills", "experience", "education", "projects", "certifications"],
+};
 
 export function buildPolishPrompt(resume: string): string {
   return `You are an expert ATS resume reviewer who has rewritten thousands of resumes for top recruiters at Google, Microsoft, McKinsey, and India's top product companies.
@@ -70,6 +231,8 @@ Your job: take this resume and produce an ATS-friendly rewrite with a score and 
 ${ANTI_HALLUCINATION}
 
 ${ATS_SCORE_RUBRIC}
+
+${STRUCTURED_RESUME_INSTRUCTIONS}
 
 Return STRICT JSON, no markdown, no commentary outside the JSON:
 
@@ -103,7 +266,8 @@ Return STRICT JSON, no markdown, no commentary outside the JSON:
   ],
   "top_suggestions": [
     "<3-5 highest-impact, prioritised, actionable suggestions. e.g. 'Add a Skills section with comma-separated keywords for ATS pickup', 'Move Education below Experience for senior roles', etc.>"
-  ]
+  ],
+  "structured_resume": <full structured resume — see STRUCTURED RESUME OUTPUT instructions above>
 }
 
 Rules:
@@ -163,8 +327,9 @@ export const POLISH_SCHEMA = {
       },
     },
     top_suggestions: { type: "array", items: { type: "string" } },
+    structured_resume: STRUCTURED_RESUME_SCHEMA_FRAGMENT,
   },
-  required: ["ats_score", "one_line_summary", "checks", "rewritten_bullets", "top_suggestions"],
+  required: ["ats_score", "one_line_summary", "checks", "rewritten_bullets", "top_suggestions", "structured_resume"],
 };
 
 export function buildTailorPrompt(resume: string, jd: string): string {
@@ -179,6 +344,8 @@ Given this resume and this job description, produce:
 6. A 1-line cover-letter hook the user can use as the opening line
 
 ${ANTI_HALLUCINATION}
+
+${STRUCTURED_RESUME_INSTRUCTIONS}
 
 Match score guidance:
 - 80-100: strong fit, recommend applying as-is after these tweaks
@@ -211,7 +378,8 @@ Return STRICT JSON, no markdown:
   "ats_format_warnings": [
     "<short warnings about formatting that would hurt ATS — e.g. 'Resume uses tables in Skills section — flatten to comma-separated list', 'Multiple columns detected', etc. Empty array if none.>"
   ],
-  "cover_letter_hook": "<one strong opening sentence the user could paste into a cover letter or recruiter DM>"
+  "cover_letter_hook": "<one strong opening sentence the user could paste into a cover letter or recruiter DM>",
+  "structured_resume": <full structured resume tailored to this JD — see STRUCTURED RESUME OUTPUT instructions above. Bullets in experience[] should be the JD-tailored versions.>
 }
 
 Rules:
@@ -272,6 +440,7 @@ export const TAILOR_SCHEMA = {
     },
     ats_format_warnings: { type: "array", items: { type: "string" } },
     cover_letter_hook: { type: "string" },
+    structured_resume: STRUCTURED_RESUME_SCHEMA_FRAGMENT,
   },
   required: [
     "match_score",
@@ -284,5 +453,6 @@ export const TAILOR_SCHEMA = {
     "rewritten_bullets",
     "ats_format_warnings",
     "cover_letter_hook",
+    "structured_resume",
   ],
 };
