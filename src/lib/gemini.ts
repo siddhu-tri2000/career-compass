@@ -4,16 +4,19 @@ import type {
   MatchResult,
   GhostDetectResult,
   GhostDiagnoseResult,
+  PulseInsight,
 } from "./prompts";
 import {
   buildRoastPrompt,
   buildMatchPrompt,
   buildGhostDetectPrompt,
   buildGhostDiagnosePrompt,
+  buildPulsePrompt,
   ROAST_SCHEMA,
   MATCH_SCHEMA,
   GHOST_DETECT_SCHEMA,
   GHOST_DIAGNOSE_SCHEMA,
+  PULSE_SCHEMA,
 } from "./prompts";
 
 const GEMINI_MODELS = [
@@ -170,5 +173,18 @@ export async function ghostDiagnoseWithGemini(
     GHOST_DIAGNOSE_SCHEMA,
     apiKey,
     { temperature: 0.3, maxOutputTokens: 3072 },
+  );
+}
+
+export async function pulseInsightWithGemini(
+  profile: { seniority?: string; industry?: string; location?: string; top_skills?: string[] } | null,
+  apiKey: string,
+): Promise<PulseInsight> {
+  const dateISO = new Date().toISOString().slice(0, 10);
+  return callGeminiJSON<PulseInsight>(
+    buildPulsePrompt(profile, dateISO),
+    PULSE_SCHEMA,
+    apiKey,
+    { temperature: 0.7, maxOutputTokens: 600 },
   );
 }

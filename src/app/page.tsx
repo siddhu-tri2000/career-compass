@@ -136,6 +136,20 @@ export default function HomePage() {
         setMatchError(data.error ?? "Something went wrong.");
       } else {
         setMatchResult(data.result);
+        try {
+          const p = data.result.profile;
+          localStorage.setItem(
+            "cc:profile:v1",
+            JSON.stringify({
+              seniority: p.seniority,
+              industry: p.primary_industry,
+              location: location.trim() || undefined,
+              top_skills: p.top_skills,
+            }),
+          );
+        } catch {
+          // ignore storage errors
+        }
         setActiveTab("apply");
         setTimeout(
           () => window.scrollTo({ top: 0, behavior: "smooth" }),
@@ -373,6 +387,10 @@ function LandingView(p: LandingProps) {
             <span>New: <span className="underline decoration-purple-400 underline-offset-2">Ghost Buster</span> — find out why you&apos;re being ghosted</span>
             <span className="transition group-hover:translate-x-0.5">→</span>
           </a>
+        </div>
+
+        <div className="mx-auto mt-2 max-w-3xl text-left">
+          <DailyPulseCard />
         </div>
       </header>
 
@@ -1198,5 +1216,119 @@ function Footer({ onShare }: { onShare: () => void }) {
         </button>
       </div>
     </footer>
+  );
+}
+
+// ===== Daily Career Pulse =====
+interface PulseData {
+  headline: string;
+  body: string;
+  type: string;
+  emoji: string;
+  source_hint: string;
+}
+
+const PULSE_TYPE_GRADIENT: Record<string, string> = {
+  trend: "from-indigo-50 via-white to-purple-50 border-indigo-200",
+  salary: "from-emerald-50 via-white to-teal-50 border-emerald-200",
+  tip: "from-amber-50 via-white to-orange-50 border-amber-200",
+  opening: "from-blue-50 via-white to-cyan-50 border-blue-200",
+  tool: "from-fuchsia-50 via-white to-pink-50 border-fuchsia-200",
+};
+
+function readLastProfile(): { seniority?: string; industry?: string; location?: string; top_skills?: string[] } | null {
+  try {
+    const raw = typeof window === "undefined" ? null : localStorage.getItem("cc:profile:v1");
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    return obj && typeof obj === "object" ? obj : null;
+  } catch {
+    return null;
+  }
+}
+
+function DailyPulseCard() {
+  const [data, setData] = useState<PulseData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  async function load() {
+    setLoading(true);
+    setError(null);
+    try {
+      const profile = readLastProfile();
+      const res = await fetch("/api/pulse", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ profile }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json?.error ?? "Failed to load pulse");
+      setData(json.insight as PulseData);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load pulse");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const grad = data ? PULSE_TYPE_GRADIENT[data.type] ?? PULSE_TYPE_GRADIENT.trend : PULSE_TYPE_GRADIENT.trend;
+  const today = new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" });
+
+  return (
+    <section
+      aria-label="Daily Career Pulse"
+      className={`fade-up fade-up-delay-3 mt-6 rounded-2xl border bg-gradient-to-br p-5 shadow-lg shadow-indigo-100/40 backdrop-blur ${grad}`}
+    >
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-neutral-700">
+          <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-600" />
+          Daily Career Pulse · {today}
+        </div>
+        <button
+          onClick={load}
+          disabled={loading}
+          aria-label="Refresh pulse"
+          className="rounded-md border border-neutral-300 bg-white/70 px-2 py-0.5 text-xs font-medium text-neutral-700 transition hover:border-neutral-500 disabled:opacity-50"
+        >
+          {loading ? "…" : "↻"}
+        </button>
+      </div>
+
+      {loading && !data && (
+        <div className="space-y-2">
+          <div className="h-5 w-3/4 animate-pulse rounded bg-neutral-200/80" />
+          <div className="h-4 w-full animate-pulse rounded bg-neutral-200/60" />
+          <div className="h-4 w-5/6 animate-pulse rounded bg-neutral-200/60" />
+        </div>
+      )}
+
+      {error && !loading && (
+        <div className="text-sm text-neutral-600">
+          Couldn&apos;t load today&apos;s pulse.{" "}
+          <button onClick={load} className="font-semibold text-indigo-700 underline">
+            Try again
+          </button>
+        </div>
+      )}
+
+      {data && !loading && (
+        <div>
+          <h3 className="flex items-start gap-2 text-base font-bold leading-snug text-neutral-900 sm:text-lg">
+            <span className="text-xl">{data.emoji}</span>
+            <span>{data.headline}</span>
+          </h3>
+          <p className="mt-1.5 text-sm leading-relaxed text-neutral-700">{data.body}</p>
+          {data.source_hint && (
+            <p className="mt-2 text-xs italic text-neutral-500">💡 {data.source_hint}</p>
+          )}
+        </div>
+      )}
+    </section>
   );
 }

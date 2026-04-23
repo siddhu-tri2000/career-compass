@@ -546,4 +546,76 @@ export const GHOST_DIAGNOSE_SCHEMA = {
   required: ["fit_score", "fit_summary", "rejection_reasons", "fixes", "honest_verdict"],
 };
 
+// ===== DAILY PULSE =====
+
+export type PulseType = "trend" | "salary" | "tip" | "opening" | "tool";
+
+export interface PulseInsight {
+  headline: string;
+  body: string;
+  type: PulseType;
+  emoji: string;
+  source_hint: string;
+}
+
+export function buildPulsePrompt(
+  profile: { seniority?: string; industry?: string; location?: string; top_skills?: string[] } | null,
+  dateISO: string,
+): string {
+  const ctx = profile
+    ? `User profile context (from their last career map):
+- Seniority: ${profile.seniority ?? "unknown"}
+- Industry: ${profile.industry ?? "unknown"}
+- Location: ${profile.location ?? "India (general)"}
+- Top skills: ${(profile.top_skills ?? []).slice(0, 6).join(", ") || "unknown"}`
+    : `No profile context — generate a generic but useful insight for Indian tech / knowledge professionals.`;
+
+  return `You are a senior career analyst writing a single-card daily insight for a career-mapping app called CareerCompass. Indian audience.
+
+${ctx}
+
+Today is ${dateISO}.
+
+Generate ONE high-signal insight card the user will read in 30 seconds. It must feel fresh, useful, and specific — like a Morning Brew snippet for their career.
+
+Pick ONE type and lean into it:
+- "trend": a hiring or skill trend specifically relevant to this profile
+- "salary": realistic INR salary intel for their level + city
+- "tip": a 60-second actionable career tip (CV phrasing, interview, negotiation, networking)
+- "opening": types of roles seeing fresh demand right now for this profile
+- "tool": a free tool or resource worth knowing this week
+
+Rotate types day-to-day if invoked repeatedly — pick based on the date if needed.
+
+Return STRICT JSON, no markdown, no commentary:
+
+{
+  "headline": "<10 words max — punchy, specific, scannable>",
+  "body": "<2-4 short sentences. India-aware. Concrete. No fluff. Mention real terminology, real cities, real salary ranges in INR if relevant.>",
+  "type": "<one of: trend | salary | tip | opening | tool>",
+  "emoji": "<single emoji that fits the type>",
+  "source_hint": "<1 short sentence hinting at where they could verify or learn more — e.g. 'Check Naukri for live counts', 'Cross-check with levels.fyi for global', 'Watch TechWorld with Nana for K8s deep-dives'. Do NOT fabricate URLs.>"
+}
+
+Rules:
+- Be SPECIFIC. "AI is hot" is bad. "Platform engineering postings up 22% in Bengaluru this quarter, mostly at series-B fintechs" is good.
+- INR for India salary numbers (₹38-52L, ₹2.5cr CTC, etc.) — never USD for Indian roles.
+- No generic motivational fluff. Treat the user as smart.
+- If profile is unknown, write for an Indian mid-career tech professional in 2026.
+- One paragraph max in body. Mobile-readable.
+
+Return ONLY the JSON.`;
+}
+
+export const PULSE_SCHEMA = {
+  type: "object",
+  properties: {
+    headline: { type: "string" },
+    body: { type: "string" },
+    type: { type: "string", enum: ["trend", "salary", "tip", "opening", "tool"] },
+    emoji: { type: "string" },
+    source_hint: { type: "string" },
+  },
+  required: ["headline", "body", "type", "emoji", "source_hint"],
+};
 
