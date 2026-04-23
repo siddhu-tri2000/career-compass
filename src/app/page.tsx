@@ -35,6 +35,21 @@ const TRUST_PILLS = [
   { icon: "🇮🇳", label: "India-aware" },
 ];
 
+const EXAMPLE_ROLES = [
+  { icon: "🟢", title: "Senior Backend Engineer · Fintech" },
+  { icon: "🟡", title: "Engineering Manager · SaaS" },
+  { icon: "🟣", title: "Product Manager · D2C" },
+  { icon: "🟢", title: "Data Engineer · Analytics" },
+  { icon: "🟡", title: "Solutions Architect · Cloud" },
+  { icon: "🟣", title: "DevRel · Developer Tools" },
+  { icon: "🟢", title: "Senior SDET · Platform" },
+  { icon: "🟡", title: "Tech Lead · Payments" },
+  { icon: "🟣", title: "AI Product Manager · GenAI" },
+  { icon: "🟢", title: "Site Reliability Engineer" },
+  { icon: "🟡", title: "Director of Engineering" },
+  { icon: "🟣", title: "Growth PM · B2B SaaS" },
+];
+
 type Tab = "apply" | "stretch" | "pivot" | "target" | "assess";
 
 export default function HomePage() {
@@ -299,29 +314,44 @@ function LandingView(p: LandingProps) {
   return (
     <>
       <header className="pt-10 pb-8 text-center sm:pt-16">
-        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-800">
+        <div className="fade-up mb-4 inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50/80 px-3 py-1 text-xs font-semibold text-indigo-800 backdrop-blur">
           <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-indigo-600" />
           Powered by Google Gemini · Free for everyone
         </div>
-        <h1 className="bg-gradient-to-br from-neutral-900 via-indigo-900 to-purple-900 bg-clip-text text-4xl font-extrabold tracking-tight text-transparent sm:text-6xl">
+        <h1 className="hero-shimmer fade-up fade-up-delay-1 bg-gradient-to-br from-neutral-900 via-indigo-900 to-purple-900 bg-clip-text pb-2 text-4xl font-extrabold leading-[1.15] tracking-tight text-transparent sm:text-6xl">
           Find the roles you<br />
           <span className="text-indigo-700">should actually</span> apply for.
         </h1>
-        <p className="mx-auto mt-5 max-w-2xl text-base text-neutral-600 sm:text-lg">
+        <p className="fade-up fade-up-delay-2 mx-auto mt-5 max-w-2xl text-base text-neutral-600 sm:text-lg">
           Paste your CV. Get a personalised career map: roles you fit today,
           stretch roles 1–2 steps away, and adjacent paths you haven&apos;t
           considered.
         </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+        <div className="fade-up fade-up-delay-3 mt-6 flex flex-wrap items-center justify-center gap-2">
           {TRUST_PILLS.map((pill) => (
             <span
               key={pill.label}
-              className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white/80 px-2.5 py-1 text-xs font-medium text-neutral-700 backdrop-blur"
+              className="inline-flex items-center gap-1 rounded-full border border-neutral-200 bg-white/80 px-2.5 py-1 text-xs font-medium text-neutral-700 backdrop-blur transition hover:-translate-y-0.5 hover:border-indigo-300 hover:shadow-md hover:shadow-indigo-100"
             >
               <span>{pill.icon}</span>
               <span>{pill.label}</span>
             </span>
           ))}
+        </div>
+
+        {/* Eye-candy: marquee of example AI outputs so users SEE what they'll get */}
+        <div className="marquee-pause fade-up fade-up-delay-3 mt-8 overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+          <div className="marquee gap-2">
+            {[...EXAMPLE_ROLES, ...EXAMPLE_ROLES].map((r, i) => (
+              <span
+                key={i}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/60 bg-white/70 px-3 py-1 text-xs font-medium text-neutral-700 shadow-sm backdrop-blur"
+              >
+                <span>{r.icon}</span>
+                <span>{r.title}</span>
+              </span>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -366,7 +396,7 @@ function LandingView(p: LandingProps) {
           <button
             onClick={p.mapCareer}
             disabled={p.matchLoading || p.charCount < 200}
-            className="mt-6 w-full rounded-xl bg-gradient-to-r from-indigo-700 to-purple-700 px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-indigo-300/50 transition hover:from-indigo-800 hover:to-purple-800 hover:shadow-xl active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:from-neutral-300 disabled:to-neutral-300 disabled:shadow-none"
+            className="cta-sheen mt-6 w-full rounded-xl bg-gradient-to-r from-indigo-700 to-purple-700 px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-indigo-300/50 transition hover:from-indigo-800 hover:to-purple-800 hover:shadow-xl hover:shadow-indigo-400/60 active:scale-[0.99] disabled:cursor-not-allowed disabled:bg-neutral-300 disabled:from-neutral-300 disabled:to-neutral-300 disabled:shadow-none"
           >
             {p.matchLoading ? (
               <span className="inline-flex items-center gap-2">
@@ -443,7 +473,7 @@ function FeatureCard({
   color: string;
 }) {
   return (
-    <div className={`rounded-xl border p-4 ${color}`}>
+    <div className={`rounded-xl border p-4 transition hover:-translate-y-1 hover:shadow-lg hover:shadow-indigo-100/60 ${color}`}>
       <div className="mb-1 flex items-center gap-2">
         <span className="text-xl">{icon}</span>
         <span className="font-bold text-neutral-900">{title}</span>

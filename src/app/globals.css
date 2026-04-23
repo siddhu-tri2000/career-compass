@@ -1,1 +1,128 @@
 @import "tailwindcss";
+
+/* ───────── Aurora mesh background ───────── */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(99, 102, 241, 0.18), transparent 60%),
+    radial-gradient(1000px 500px at 110% 10%, rgba(168, 85, 247, 0.16), transparent 60%),
+    radial-gradient(900px 500px at 50% 110%, rgba(236, 72, 153, 0.10), transparent 60%),
+    linear-gradient(180deg, #fafafa 0%, #f5f3ff 100%);
+}
+.aurora::before,
+.aurora::after {
+  content: "";
+  position: absolute;
+  width: 38rem;
+  height: 38rem;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.55;
+  animation: blob 22s ease-in-out infinite;
+}
+.aurora::before {
+  top: -10rem;
+  left: -8rem;
+  background: radial-gradient(circle, #818cf8 0%, transparent 70%);
+}
+.aurora::after {
+  bottom: -12rem;
+  right: -10rem;
+  background: radial-gradient(circle, #c084fc 0%, transparent 70%);
+  animation-delay: -11s;
+}
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(40px, -30px) scale(1.08); }
+  66% { transform: translate(-30px, 40px) scale(0.94); }
+}
+
+/* ───────── Shimmer sweep on hero headline ───────── */
+.hero-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.hero-shimmer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 70%
+  );
+  transform: translateX(-100%);
+  animation: shimmer 4.5s ease-in-out 1.5s infinite;
+  pointer-events: none;
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(100%); }
+}
+
+/* ───────── Marquee for example role chips ───────── */
+.marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 38s linear infinite;
+}
+.marquee-pause:hover .marquee { animation-play-state: paused; }
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* ───────── Fade-up entrance ───────── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.fade-up-delay-1 { animation-delay: 0.1s; }
+.fade-up-delay-2 { animation-delay: 0.25s; }
+.fade-up-delay-3 { animation-delay: 0.4s; }
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ───────── Gradient sheen on CTA hover ───────── */
+.cta-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.cta-sheen::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  transition: left 0.7s ease;
+}
+.cta-sheen:hover::before { left: 125%; }
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .aurora::before, .aurora::after,
+  .hero-shimmer::after,
+  .marquee,
+  .fade-up,
+  .cta-sheen::before {
+    animation: none !important;
+    transition: none !important;
+  }
+  .fade-up { opacity: 1; transform: none; }
+}
