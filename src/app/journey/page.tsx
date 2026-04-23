@@ -168,8 +168,10 @@ export default function JourneyPage() {
         </div>
       )}
 
+      {!loading && !authNeeded && !error && <WeeklyDigestCard />}
+
       {!loading && !authNeeded && journeys.length === 0 && !error && (
-        <div className="rounded-2xl border-2 border-dashed border-neutral-300 bg-white/60 p-8 text-center backdrop-blur">
+        <div className="mt-4 rounded-2xl border-2 border-dashed border-neutral-300 bg-white/60 p-8 text-center backdrop-blur">
           <div className="text-5xl">🪴</div>
           <h2 className="mt-3 text-lg font-bold text-neutral-900">Your journey is empty</h2>
           <p className="mt-2 mx-auto max-w-md text-sm text-neutral-700">
@@ -193,8 +195,6 @@ export default function JourneyPage() {
             <StatTile label="Completed" value={String(stats.completed)} icon="✅" />
             <StatTile label="Hours logged" value={stats.totalHours.toFixed(1)} icon="⏱" />
           </div>
-
-          <WeeklyDigestCard />
 
           <div className="mt-6 space-y-4">
             {journeys.map((j) => {
