@@ -117,6 +117,7 @@ overall = weighted avg (impact 0.35, keywords 0.25, ats_format 0.25, brevity 0.1
 
 const ANTI_HALLUCINATION = `CRITICAL: ANTI-HALLUCINATION
 - Use ONLY facts present in the resume. NEVER invent numbers, dates, employers, achievements, or technologies.
+- If an "ADDITIONAL CONTEXT FROM USER" block appears at the end of the resume, treat its contents (LinkedIn export and/or user notes) as authoritative supplemental facts from the candidate themselves. Use them alongside the CV body. The same anti-invention rule applies — never go beyond what is stated there.
 - If a bullet has no numbers and you can't truthfully add one, rewrite it for clarity but DO NOT make up metrics.
 - If you genuinely cannot improve a bullet without inventing facts, you may keep "rewritten" identical to "original" and explain in why_better.
 - For structured_resume: extract EVERY job, project, education entry, certification you find. Preserve all dates, company names, locations EXACTLY as written. If a field is missing, use empty string "". Never fabricate.`;

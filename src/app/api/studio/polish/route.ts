@@ -4,7 +4,7 @@ import { getServerSupabase, getAdminSupabase } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "@/lib/rateLimit";
 
 const MIN_RESUME_CHARS = 200;
-const MAX_RESUME_CHARS = 25_000;
+const MAX_RESUME_CHARS = 35_000;
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

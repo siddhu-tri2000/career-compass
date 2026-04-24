@@ -9,7 +9,7 @@ import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "@/lib/rateLimit"
 const MIN_JD_CHARS = 80;
 const MAX_JD_CHARS = 12_000;
 const MIN_CV_CHARS = 200;
-const MAX_CV_CHARS = 25_000;
+const MAX_CV_CHARS = 35_000;
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";

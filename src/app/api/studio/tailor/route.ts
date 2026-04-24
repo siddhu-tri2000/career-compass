@@ -4,7 +4,7 @@ import { getServerSupabase, getAdminSupabase } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "@/lib/rateLimit";
 
 const MIN_RESUME_CHARS = 200;
-const MAX_RESUME_CHARS = 25_000;
+const MAX_RESUME_CHARS = 35_000;
 const MIN_JD_CHARS = 80;
 const MAX_JD_CHARS = 12_000;
 

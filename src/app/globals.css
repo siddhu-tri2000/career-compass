@@ -126,3 +126,132 @@
   }
   .fade-up { opacity: 1; transform: none; }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   Notion / Arc-flavoured premium design system
+   Soft pastels · rounded-3xl · squishy · sticker chips · glow shadows
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Pastel surface gradients (subtle 180deg fade to near-white) */
+.surface-peach    { background: linear-gradient(180deg, #FFF1EA 0%, #FFFDFB 100%); }
+.surface-lavender { background: linear-gradient(180deg, #F0EBFF 0%, #FBF9FF 100%); }
+.surface-mint     { background: linear-gradient(180deg, #E6F7EE 0%, #FAFEFC 100%); }
+.surface-sky      { background: linear-gradient(180deg, #E8F4FF 0%, #FAFCFF 100%); }
+.surface-butter   { background: linear-gradient(180deg, #FFF6DD 0%, #FFFDF5 100%); }
+.surface-rose     { background: linear-gradient(180deg, #FFEAF1 0%, #FFFBFD 100%); }
+
+/* Soft glow shadows for floating cards */
+.glow-indigo  { box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 18px 48px -16px rgba(99,102,241,.30); }
+.glow-purple  { box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 18px 48px -16px rgba(168,85,247,.28); }
+.glow-pink    { box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 18px 48px -16px rgba(236,72,153,.24); }
+.glow-emerald { box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 18px 48px -16px rgba(16,185,129,.24); }
+.glow-amber   { box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 18px 48px -16px rgba(245,158,11,.26); }
+.glow-soft    { box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 14px 36px -14px rgba(15,23,42,.18); }
+
+/* Squishy interactive — Notion-style spring response */
+.squish {
+  transition:
+    transform .18s cubic-bezier(.34, 1.56, .64, 1),
+    box-shadow .25s ease,
+    background-color .2s ease,
+    color .2s ease,
+    border-color .2s ease;
+}
+.squish:hover  { transform: translateY(-1.5px); }
+.squish:active { transform: translateY(0) scale(.97); }
+
+/* Sticker chip — rounded pill that gently tilts on hover */
+.sticker {
+  display: inline-flex;
+  align-items: center;
+  gap: .375rem;
+  padding: .3rem .75rem;
+  border-radius: 9999px;
+  background: #fff;
+  font-weight: 600;
+  font-size: .75rem;
+  box-shadow:
+    0 1px 0 rgba(0,0,0,.04),
+    0 6px 14px -6px rgba(15,23,42,.10);
+  transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), box-shadow .25s ease;
+}
+.sticker:hover {
+  transform: translateY(-2px) rotate(-1.5deg);
+  box-shadow:
+    0 1px 0 rgba(0,0,0,.06),
+    0 10px 22px -8px rgba(15,23,42,.16);
+}
+
+/* Floating bento card — rounded-3xl, soft border, premium hover lift */
+.bento {
+  position: relative;
+  border-radius: 1.5rem;
+  background: rgba(255,255,255,.92);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(229, 231, 235, .9);
+  transition:
+    transform .25s cubic-bezier(.22, 1, .36, 1),
+    box-shadow .25s ease,
+    border-color .2s ease;
+}
+.bento:hover {
+  transform: translateY(-3px);
+  border-color: rgba(199, 210, 254, .95);
+  box-shadow: 0 1px 0 rgba(0,0,0,.02), 0 26px 60px -22px rgba(99,102,241,.28);
+}
+
+/* Subtle infinite "breathing" emoji wrapper for stickers */
+.float-y {
+  animation: floatY 5.5s ease-in-out infinite;
+}
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+/* Animated colored gradient border (one wrapper, one inner) */
+.grad-border {
+  position: relative;
+  border-radius: 1.5rem;
+  padding: 1px;
+  background: linear-gradient(135deg, #c7d2fe 0%, #ddd6fe 35%, #fbcfe8 70%, #fed7aa 100%);
+  background-size: 200% 200%;
+  animation: gradShift 9s ease infinite;
+}
+.grad-border > * {
+  border-radius: calc(1.5rem - 1px);
+  background: #ffffff;
+}
+@keyframes gradShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%      { background-position: 100% 50%; }
+}
+
+/* Section heading eyebrow */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: .375rem;
+  font-size: .6875rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #4f46e5;
+}
+.eyebrow::before {
+  content: "";
+  width: 1.25rem;
+  height: 2px;
+  border-radius: 9999px;
+  background: currentColor;
+  opacity: .55;
+}
+
+/* Reduced-motion overrides for new utilities */
+@media (prefers-reduced-motion: reduce) {
+  .squish, .sticker, .bento, .float-y, .grad-border {
+    animation: none !important;
+    transition: none !important;
+  }
+  .squish:hover, .sticker:hover, .bento:hover { transform: none; }
+}

@@ -104,8 +104,11 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
         )}
 
         <p className="mt-5 text-center text-xs text-neutral-500">
-          By signing in you agree to use this tool responsibly.
-          We only store your name, email and search history — never your raw CV.
+          By signing in you agree to our{" "}
+          <a href="/terms" target="_blank" rel="noreferrer" className="font-semibold text-neutral-700 underline hover:text-neutral-900">Terms</a>
+          {" "}and{" "}
+          <a href="/privacy" target="_blank" rel="noreferrer" className="font-semibold text-neutral-700 underline hover:text-neutral-900">Privacy Policy</a>.
+          We store your email + the analyses you save — never your raw CV.
         </p>
       </div>
     </div>,

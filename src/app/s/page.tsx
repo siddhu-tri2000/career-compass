@@ -115,7 +115,7 @@ export default async function SharePage({ searchParams }: PageProps) {
       )}
 
       <Link
-        href="/"
+        href="/map"
         className="mt-8 inline-flex items-center gap-2 rounded-2xl bg-indigo-700 px-6 py-3.5 text-base font-bold text-white shadow-xl shadow-indigo-300/40 transition hover:-translate-y-0.5 hover:bg-indigo-800"
       >
         🧭 Map my career →

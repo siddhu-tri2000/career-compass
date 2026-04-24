@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import MiniFooter from "@/components/MiniFooter";
 import type { LearningResource } from "@/lib/prompts";
 
 interface Journey {
@@ -376,6 +377,7 @@ export default function JourneyPage() {
           </div>
         </>
       )}
+      <MiniFooter />
     </main>
   );
 }

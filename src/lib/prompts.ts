@@ -227,6 +227,7 @@ Rules:
 - Be specific about gaps. "More leadership" is bad. "Experience managing managers, not just ICs" is good.
 - For 'severity': critical = blocks them entirely; important = noticeable disadvantage; nice_to_have = polish.
 - Be honest. If the resume doesn't support a target role, say so.
+- If an "ADDITIONAL CONTEXT FROM USER" block appears at the end of the resume, treat its contents (LinkedIn export and/or user notes) as authoritative supplemental facts from the candidate. Factor them into seniority, top_skills, fit reasoning, and gap analysis. Still never invent anything beyond what is stated there.
 - Output JSON ONLY.
 
 RESUME:

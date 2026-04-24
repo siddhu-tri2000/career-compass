@@ -4,7 +4,16 @@ import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import CvInput from "@/components/CvInput";
+import ExtrasInput from "@/components/ExtrasInput";
+import MiniFooter from "@/components/MiniFooter";
 import type { PolishOutput, TailorOutput, BulletRewrite } from "@/lib/studioPrompts";
+import {
+  EMPTY_EXTRAS,
+  mergeResumeWithExtras,
+  readExtrasFromStorage,
+  writeExtrasToStorage,
+  type ResumeExtras,
+} from "@/lib/mergeResume";
 
 type Mode = "polish" | "tailor";
 
@@ -16,6 +25,7 @@ function StudioPageInner() {
   const [mode, setMode] = useState<Mode>(initialMode);
   const [resume, setResume] = useState("");
   const [jd, setJd] = useState(initialJd);
+  const [extras, setExtras] = useState<ResumeExtras>(EMPTY_EXTRAS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [polishResult, setPolishResult] = useState<PolishOutput | null>(null);
@@ -27,6 +37,16 @@ function StudioPageInner() {
       if (cached) setResume(cached);
     }
   }, [initialJd, resume]);
+
+  // Hydrate extras (LinkedIn export + free-form notes) once on mount.
+  useEffect(() => {
+    setExtras(readExtrasFromStorage());
+  }, []);
+
+  // Persist whenever extras change so the home page sees the same value.
+  useEffect(() => {
+    writeExtrasToStorage(extras);
+  }, [extras]);
 
   useEffect(() => {
     if (resume && resume.length > 100) {
@@ -53,7 +73,8 @@ function StudioPageInner() {
     setLoading(true);
     try {
       const endpoint = mode === "polish" ? "/api/studio/polish" : "/api/studio/tailor";
-      const body = mode === "polish" ? { resume } : { resume, jd };
+      const mergedResume = mergeResumeWithExtras(resume, extras);
+      const body = mode === "polish" ? { resume: mergedResume } : { resume: mergedResume, jd };
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -71,109 +92,219 @@ function StudioPageInner() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50/40 via-white to-white">
+    <div className="min-h-screen">
       <nav className="sticky top-0 z-30 border-b border-neutral-200/60 bg-white/70 backdrop-blur-md">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 text-base font-bold text-neutral-900">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
+          <Link href="/" className="flex items-center gap-2 text-base font-bold text-neutral-900 transition hover:opacity-80">
             <span className="text-2xl">🧭</span>
             <span>CareerCompass</span>
           </Link>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            <Link
+              href="/map"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-100"
+            >
+              Career Map
+            </Link>
+            <Link
+              href="/ghost-buster"
+              className="hidden sm:inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-100"
+            >
+              Ghost Buster
+            </Link>
             <Link
               href="/journey"
-              className="rounded-lg border border-neutral-300 bg-white px-3 py-1.5 text-sm font-semibold text-neutral-700 hover:border-neutral-500"
+              className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-neutral-700 transition hover:bg-neutral-100"
             >
-              🧗 Journey
+              <span className="text-base leading-none">🧗</span>
+              <span className="hidden sm:inline">Journey</span>
             </Link>
           </div>
         </div>
       </nav>
 
-      <main className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
-        <header className="mb-6">
-          <div className="text-xs font-bold uppercase tracking-wider text-purple-700">Resume Studio</div>
-          <h1 className="mt-1 text-3xl font-extrabold text-neutral-900 sm:text-4xl">
-            Make your CV survive any ATS.
+      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+        {/* HEADER */}
+        <header className="mb-8 max-w-3xl">
+          <div className="mb-4 inline-flex">
+            <span className="sticker text-purple-800">
+              <span className="float-y inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 text-white shadow-sm">
+                <span className="text-[10px]">🛠</span>
+              </span>
+              <span>Resume Studio</span>
+            </span>
+          </div>
+          <h1 className="hero-shimmer bg-gradient-to-br from-neutral-900 via-purple-900 to-fuchsia-900 bg-clip-text pb-2 text-3xl font-extrabold leading-[1.1] tracking-tight text-transparent sm:text-5xl">
+            Make your CV{" "}
+            <span className="relative inline-block whitespace-nowrap text-purple-700">
+              survive any ATS.
+              <svg
+                aria-hidden
+                viewBox="0 0 220 14"
+                preserveAspectRatio="none"
+                className="absolute -bottom-1 left-0 h-2.5 w-full text-amber-300/80"
+              >
+                <path d="M2 9 C 60 2, 120 14, 218 5" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" />
+              </svg>
+            </span>
           </h1>
-          <p className="mt-2 max-w-2xl text-neutral-700">
-            Upload your CV. Pick a mode. Get a recruiter-grade rewrite plus an ATS score in 30 seconds.
-            Built on what Jobscan, Rezi, and Teal charge for — free.
+          <p className="mt-4 text-base leading-relaxed text-neutral-600 sm:text-lg">
+            Recruiter-grade rewrite + an honest ATS score in 30 seconds.
+            Built on what Jobscan, Rezi, and Teal charge for —
+            <span className="font-semibold text-neutral-800"> free</span>.
           </p>
         </header>
 
-        <div className="mb-6 inline-flex rounded-xl bg-neutral-100 p-1">
+        {/* MODE SEGMENTED CONTROL */}
+        <div className="mb-6 inline-flex items-center gap-1 rounded-2xl bg-white p-1.5 shadow-sm ring-1 ring-neutral-200/70">
           <button
             onClick={() => setMode("polish")}
-            className={`rounded-lg px-4 py-2 text-sm font-bold transition ${
+            className={`squish inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition ${
               mode === "polish"
-                ? "bg-white text-purple-800 shadow-sm"
-                : "text-neutral-600 hover:text-neutral-900"
+                ? "bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white shadow-md"
+                : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
             }`}
           >
-            🛠 ATS Polish
+            <span className="text-base leading-none">✨</span>
+            <span>ATS Polish</span>
           </button>
           <button
             onClick={() => setMode("tailor")}
-            className={`rounded-lg px-4 py-2 text-sm font-bold transition ${
+            className={`squish inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition ${
               mode === "tailor"
-                ? "bg-white text-purple-800 shadow-sm"
-                : "text-neutral-600 hover:text-neutral-900"
+                ? "bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white shadow-md"
+                : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
             }`}
           >
-            🎯 Tailor to JD
+            <span className="text-base leading-none">🎯</span>
+            <span>Tailor to JD</span>
           </button>
         </div>
 
-        <div className="mb-2 text-sm font-medium text-neutral-700">
+        <p className="mb-5 text-sm text-neutral-600">
           {mode === "polish"
             ? "We'll rewrite your CV for any ATS — no specific job needed."
-            : "We'll rewrite your CV for one specific job — paste the JD below."}
-        </div>
+            : "We'll rewrite your CV for one specific job — paste the JD on the right."}
+        </p>
 
-        <section className="grid gap-4 lg:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-sm font-bold text-neutral-800">Your CV</label>
+        {/* INPUT GRID — uses full canvas */}
+        <section className="grid gap-5 lg:grid-cols-3">
+          {/* CV column */}
+          <div className={`bento glow-soft p-5 sm:p-6 ${mode === "polish" ? "lg:col-span-2" : ""}`}>
+            <div className="mb-3 flex items-center justify-between">
+              <span className="eyebrow">Your CV</span>
+              <span className="text-[11px] font-medium text-neutral-500">PDF · DOCX · TXT</span>
+            </div>
             <CvInput value={resume} onChange={setResume} />
+            <div className="mt-3">
+              <ExtrasInput value={extras} onChange={setExtras} />
+            </div>
           </div>
 
+          {/* JD column (tailor only) */}
           {mode === "tailor" && (
-            <div>
-              <label className="mb-1 block text-sm font-bold text-neutral-800">Job description</label>
+            <div className="bento surface-rose p-5 sm:p-6">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="eyebrow">Job description</span>
+                <span className="text-[11px] font-medium text-neutral-500">{jd.length.toLocaleString()} chars</span>
+              </div>
               <textarea
                 value={jd}
                 onChange={(e) => setJd(e.target.value)}
-                placeholder="Paste the full job description here…"
-                rows={14}
-                className="w-full rounded-xl border border-neutral-300 bg-white p-3 text-sm leading-relaxed text-neutral-900 shadow-sm focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-200"
+                placeholder="Paste the full job description here — title, responsibilities, requirements, the works…"
+                rows={16}
+                className="w-full rounded-xl border border-neutral-200 bg-white/80 p-3.5 text-sm leading-relaxed text-neutral-900 placeholder:text-neutral-400 focus:border-purple-400 focus:bg-white focus:outline-none focus:ring-4 focus:ring-purple-100"
               />
-              <p className="mt-1 text-xs text-neutral-500">{jd.length.toLocaleString()} characters</p>
+              <p className="mt-2 text-xs text-neutral-500">
+                Tip: paste the whole posting — we use the requirements + nice-to-haves.
+              </p>
             </div>
           )}
+
+          {/* Helper / preview panel */}
+          <aside className="space-y-4">
+            <div className="bento surface-lavender p-5 sm:p-6">
+              <span className="eyebrow">What you&apos;ll get</span>
+              <ul className="mt-3 space-y-2.5 text-sm text-neutral-800">
+                <li className="flex gap-2.5">
+                  <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">📊</span>
+                  <span><span className="font-semibold">ATS score 0–100</span> with category breakdown (keywords, format, impact, clarity).</span>
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">✍️</span>
+                  <span><span className="font-semibold">Bullet-by-bullet rewrites</span> — before vs after, with the reasoning.</span>
+                </li>
+                {mode === "tailor" ? (
+                  <li className="flex gap-2.5">
+                    <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">🎯</span>
+                    <span><span className="font-semibold">JD keyword matrix</span> — which exact phrases you&apos;re missing.</span>
+                  </li>
+                ) : (
+                  <li className="flex gap-2.5">
+                    <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">🔑</span>
+                    <span><span className="font-semibold">Universal ATS keywords</span> recruiters scan for in your role.</span>
+                  </li>
+                )}
+                <li className="flex gap-2.5">
+                  <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">🚩</span>
+                  <span><span className="font-semibold">Red flags</span> a recruiter would notice in 6 seconds.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div className="bento surface-mint p-5 sm:p-6">
+              <span className="eyebrow">Tips for best results</span>
+              <ul className="mt-3 space-y-2 text-sm text-neutral-800">
+                <li className="flex gap-2"><span>✅</span><span>Include <span className="font-semibold">numbers</span> wherever you can — %, $, headcount, time.</span></li>
+                <li className="flex gap-2"><span>✅</span><span>Keep dates and titles intact — we won&apos;t invent any.</span></li>
+                {mode === "tailor" && (
+                  <li className="flex gap-2"><span>✅</span><span>Paste the <span className="font-semibold">full JD</span>, not just the title.</span></li>
+                )}
+                <li className="flex gap-2"><span>✅</span><span>Use the <span className="font-semibold">Extras</span> field to add wins your CV is missing.</span></li>
+              </ul>
+            </div>
+
+            <div className="flex justify-center">
+              <span className="sticker text-neutral-700">
+                <span className="text-base leading-none">🔒</span>
+                <span>Your CV is sent to Gemini and <span className="font-semibold text-neutral-900">never stored</span>.</span>
+              </span>
+            </div>
+          </aside>
         </section>
 
-        <div className="mt-5 flex flex-wrap items-center gap-3">
+        {/* CTA */}
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
           <button
             onClick={run}
             disabled={loading}
-            className="inline-flex items-center gap-2 rounded-xl bg-purple-700 px-5 py-3 text-sm font-bold text-white shadow-md transition hover:bg-purple-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="cta-sheen squish glow-purple inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 px-6 py-3.5 text-base font-bold text-white disabled:cursor-not-allowed disabled:from-neutral-300 disabled:via-neutral-300 disabled:to-neutral-300 disabled:shadow-none"
           >
             {loading ? (
               <>
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Analysing…
+                <span>Analysing your CV…</span>
               </>
-            ) : mode === "polish" ? (
-              "🛠 Polish my CV"
             ) : (
-              "🎯 Tailor my CV"
+              <>
+                <span className="text-lg leading-none">{mode === "polish" ? "✨" : "🎯"}</span>
+                <span>{mode === "polish" ? "Polish my CV" : "Tailor my CV to this JD"}</span>
+                <span>→</span>
+              </>
             )}
           </button>
-          {error && <span className="text-sm font-semibold text-red-700">{error}</span>}
+          {error && (
+            <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50/70 px-3.5 py-2.5 text-sm text-red-800">
+              <span className="text-base leading-none">⚠️</span>
+              <span className="font-medium">{error}</span>
+            </div>
+          )}
         </div>
 
         {polishResult && <PolishResultsView result={polishResult} />}
         {tailorResult && <TailorResultsView result={tailorResult} />}
       </main>
+      <MiniFooter />
     </div>
   );
 }

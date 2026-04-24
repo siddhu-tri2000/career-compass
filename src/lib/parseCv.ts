@@ -2,7 +2,7 @@
 // Returns extracted plain text or throws an Error with a user-friendly message.
 
 const MAX_BYTES = 5 * 1024 * 1024; // 5 MB
-const MAX_OUT_CHARS = 25_000;
+const MAX_OUT_CHARS = 35_000;
 
 export type SupportedExt = "pdf" | "docx" | "txt";
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import MiniFooter from "@/components/MiniFooter";
 import type { GhostDetectResult, GhostDiagnoseResult } from "@/lib/prompts";
 
 type Mode = "detect" | "diagnose";
@@ -197,6 +198,7 @@ export default function GhostBusterPage() {
       <footer className="mt-10 text-center text-xs text-neutral-500">
         Powered by Google Gemini · Free · Your CV and JDs are never stored.
       </footer>
+      <MiniFooter />
     </main>
   );
 }
