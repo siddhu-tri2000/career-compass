@@ -8,11 +8,11 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: "CareerCompass — Find the roles you should actually apply for",
   description:
-    "Stop guessing which jobs to apply for. Paste your CV, get a personalised career map: roles you fit today, stretch roles 1–2 steps away, and adjacent paths you haven't considered. Free.",
+    "Stop guessing which jobs to apply for. Paste your CV, get a personalised career map: roles you fit today, stretch roles 1–2 steps away, and adjacent paths you haven't considered. Free daily tries.",
   openGraph: {
     title: "CareerCompass — Find the roles you should actually apply for",
     description:
-      "Paste your CV. Get a personalised India-aware career map in 30s. Free.",
+      "Paste your CV. Get a personalised India-aware career map in 30s. 5 free runs/day per tool.",
     url: SITE_URL,
     siteName: "CareerCompass",
     images: [{ url: "/api/og", width: 1200, height: 630, alt: "CareerCompass — find the roles you should actually apply for" }],
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CareerCompass — Find the roles you should actually apply for",
     description:
-      "Paste your CV. Get a personalised India-aware career map in 30s. Free.",
+      "Paste your CV. Get a personalised India-aware career map in 30s. 5 free runs/day per tool.",
     images: ["/api/og"],
   },
 };

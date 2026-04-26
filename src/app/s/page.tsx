@@ -36,8 +36,8 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     : "CareerCompass — find the roles you should actually apply for";
 
   const description = role
-    ? `${seniority ? seniority + " · " : ""}${topSkills ? "Top skills: " + topSkills.split(",").slice(0, 3).join(", ") + ". " : ""}Map your own career in 30s — free.`
-    : "Paste your CV. Get a personalised India-aware career map: roles you fit today, stretch roles, and adjacent paths. Free.";
+    ? `${seniority ? seniority + " · " : ""}${topSkills ? "Top skills: " + topSkills.split(",").slice(0, 3).join(", ") + ". " : ""}Map your own career in 30s.`
+    : "Paste your CV. Get a personalised India-aware career map: roles you fit today, stretch roles, and adjacent paths.";
 
   return {
     title,
@@ -98,7 +98,7 @@ export default async function SharePage({ searchParams }: PageProps) {
             </div>
           )}
           <p className="mt-8 max-w-md text-base text-neutral-700">
-            Want your own career map? Paste your CV — free, India-aware, no signup needed.
+            Want your own career map? Paste your CV — India-aware, 5 free runs a day.
           </p>
         </>
       ) : (

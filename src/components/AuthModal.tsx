@@ -75,7 +75,7 @@ export default function AuthModal({ open, onClose }: AuthModalProps) {
           </button>
         </div>
         <p className="mb-5 text-sm text-neutral-600">
-          Save your search history and unlock upcoming features. Anonymous use stays free forever.
+          Sign in to save your work and unlock <strong className="text-neutral-900">5 daily runs per tool</strong> (anonymous gets 2). We never store your raw CV.
         </p>
 
         <div className="space-y-2.5">

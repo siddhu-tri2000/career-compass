@@ -45,6 +45,7 @@ export default function PrivacyPage() {
           <ul className="mt-2 list-disc space-y-1 pl-5">
             <li>Your CV text and any inputs you type (target role, location, JD, extras).</li>
             <li>Anonymous usage counters: how many analyses ran, error rates. No CV content is logged.</li>
+            <li>A <strong>truncated SHA-256 hash of your IP</strong> (not the IP itself) is stored against per-tool daily counters so we can enforce free-tier daily limits without identifying you.</li>
             <li>Standard server logs (IP, user-agent) kept for ≤30 days for abuse protection.</li>
           </ul>
           <p className="mt-3"><strong>When you sign in:</strong></p>

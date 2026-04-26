@@ -8,7 +8,7 @@ export default function MiniFooter() {
           <span className="text-base">🧭</span>
           <span className="font-semibold text-neutral-700">CareerCompass</span>
           <span className="text-neutral-300">·</span>
-          <span>Honest career advice, free.</span>
+          <span>Honest career advice.</span>
         </div>
         <div className="flex flex-wrap items-center gap-4">
           <Link href="/" className="hover:text-neutral-800">Home</Link>

@@ -32,7 +32,7 @@ export default function TermsPage() {
         <section className="rounded-2xl bg-amber-50 p-5 ring-1 ring-amber-200/70">
           <h2 className="m-0 text-lg font-bold text-amber-900">TL;DR</h2>
           <ul className="mt-2 list-disc space-y-1 pl-5 text-amber-900/90">
-            <li>CareerCompass is a free AI tool. It&apos;s not a recruiter, employer, or career counsellor.</li>
+            <li>CareerCompass is a free-to-try AI tool with daily usage quotas. It&apos;s not a recruiter, employer, or career counsellor.</li>
             <li>AI output can be wrong. Use your own judgement before applying for anything.</li>
             <li>Don&apos;t abuse the service (bulk scraping, automated requests, etc.).</li>
             <li>Provided as-is, no warranty. We&apos;re not liable for outcomes from using the advice.</li>
@@ -42,7 +42,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-bold text-neutral-900">1. The service</h2>
           <p className="mt-2">
-            CareerCompass (&ldquo;the Service&rdquo;) is a free AI-powered career toolkit operated as an open-source project.
+            CareerCompass (&ldquo;the Service&rdquo;) is an AI-powered career toolkit operated as an open-source project. Each tool is currently offered with a daily free quota (2 runs/day for anonymous users, 5 runs/day for signed-in users); paid plans for higher usage may be introduced in the future.
             It uses <strong>Google Gemini</strong> to analyse CVs and generate suggestions across four tools:
             Career Map, Resume Studio, Ghost Buster, and Journey.
           </p>

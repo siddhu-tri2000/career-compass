@@ -7,7 +7,7 @@ import SplashBento from "@/components/SplashBento";
 export const metadata: Metadata = {
   title: "CareerCompass — Your AI career toolkit",
   description:
-    "Four free AI tools to find the right roles, fix your CV, and figure out why you're being ghosted. Built on Google Gemini. Your data stays private.",
+    "Four AI tools to find the right roles, fix your CV, and figure out why you're being ghosted. Built on Google Gemini. 5 free runs/day per tool.",
 };
 
 type Tone = "indigo" | "emerald" | "rose" | "amber" | "sky";
@@ -78,7 +78,7 @@ const TOOLS: Tool[] = [
 const TRUST_PILLS = [
   { icon: "🔒", label: "CV never stored", surface: "text-emerald-800 ring-1 ring-emerald-200/70 bg-emerald-50" },
   { icon: "✨", label: "Powered by Gemini", surface: "text-indigo-800 ring-1 ring-indigo-200/70 bg-indigo-50" },
-  { icon: "🆓", label: "100% free", surface: "text-amber-800 ring-1 ring-amber-200/70 bg-amber-50" },
+  { icon: "⚡", label: "5 free runs/day", surface: "text-amber-800 ring-1 ring-amber-200/70 bg-amber-50" },
   { icon: "🇮🇳", label: "India-aware", surface: "text-rose-800 ring-1 ring-rose-200/70 bg-rose-50" },
 ];
 
@@ -192,7 +192,7 @@ function Hero() {
             <span className="live-dot" />
             <span>Your AI career toolkit</span>
             <span className="text-neutral-300">·</span>
-            <span className="text-emerald-700">Free forever</span>
+            <span className="text-emerald-700">Free daily tries</span>
           </span>
         </div>
 
@@ -381,7 +381,7 @@ function FinalCta() {
             Most users get answers in under a minute.
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-neutral-600">
-            Free. No sign-up needed. Your CV is processed by Gemini and never stored on our servers.
+            5 free runs per tool, every day. Anonymous gets 2 — sign in for the rest. Your CV is processed by Gemini and never stored on our servers.
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link
@@ -415,7 +415,7 @@ function Footer() {
           <span className="text-base">🧭</span>
           <span className="font-semibold text-neutral-700">CareerCompass</span>
           <span className="text-neutral-300">·</span>
-          <span>Honest career advice, free.</span>
+          <span>Honest career advice.</span>
         </div>
         <div className="flex flex-wrap items-center justify-center gap-4">
           <a

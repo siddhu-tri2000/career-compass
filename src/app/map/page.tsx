@@ -14,6 +14,8 @@ import CvInput from "@/components/CvInput";
 import ExtrasInput from "@/components/ExtrasInput";
 import AuthModal from "@/components/AuthModal";
 import FeedbackWidget from "@/components/FeedbackWidget";
+import QuotaModal, { type QuotaState } from "@/components/QuotaModal";
+import QuotaBadge from "@/components/QuotaBadge";
 import { getBrowserSupabase } from "@/lib/supabase/browser";
 import {
   EMPTY_EXTRAS,
@@ -43,7 +45,7 @@ const TONES: Array<{ id: Tone; emoji: string; label: string; sub: string }> = [
 const TRUST_PILLS = [
   { icon: "⚡", label: "30-second results" },
   { icon: "🔒", label: "CV never stored" },
-  { icon: "🆓", label: "Free · Login optional" },
+  { icon: "⚡", label: "5 free runs/day" },
   { icon: "🇮🇳", label: "India-aware" },
 ];
 
@@ -82,6 +84,8 @@ export default function HomePage() {
 
   const [activeTab, setActiveTab] = useState<Tab>("apply");
   const [progressIdx, setProgressIdx] = useState(0);
+  const [quotaState, setQuotaState] = useState<QuotaState>(null);
+  const [quotaRefresh, setQuotaRefresh] = useState(0);
 
   // --- Autosave: hydrate from localStorage on mount ---
   useEffect(() => {
@@ -150,11 +154,20 @@ export default function HomePage() {
           location: location.trim() || null,
         }),
       });
-      const data = (await res.json()) as { result?: MatchResult; error?: string };
+      const data = (await res.json()) as { result?: MatchResult; error?: string; code?: string };
+      if (res.status === 401 && data.code === "sign_in_required") {
+        setQuotaState({ kind: "sign_in", tool: "map" });
+        return;
+      }
+      if (res.status === 402 && data.code === "quota_exceeded") {
+        setQuotaState({ kind: "waitlist", tool: "map" });
+        return;
+      }
       if (!res.ok || !data.result) {
         setMatchError(data.error ?? "Something went wrong.");
       } else {
         setMatchResult(data.result);
+        setQuotaRefresh((n) => n + 1);
         try {
           const p = data.result.profile;
           localStorage.setItem(
@@ -241,6 +254,7 @@ export default function HomePage() {
             matchError={matchError}
             mapCareer={mapCareer}
             progressIdx={progressIdx}
+            quotaRefresh={quotaRefresh}
           />
         ) : (
           <>
@@ -275,6 +289,7 @@ export default function HomePage() {
       <Footer onShare={() => setShareOpen(true)} />
       <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} url={buildShareUrl(matchResult)} />
       {hasResults && <SoftLoginToast />}
+      <QuotaModal state={quotaState} onClose={() => setQuotaState(null)} />
     </main>
   );
 }
@@ -388,6 +403,7 @@ interface LandingProps {
   matchError: string | null;
   mapCareer: () => void;
   progressIdx: number;
+  quotaRefresh: number;
 }
 
 function LandingView(p: LandingProps) {
@@ -402,7 +418,7 @@ function LandingView(p: LandingProps) {
             </span>
             <span>Powered by Google Gemini</span>
             <span className="text-neutral-300">·</span>
-            <span className="text-emerald-700">Free for everyone</span>
+            <span className="text-emerald-700">5 free runs/day</span>
           </span>
         </div>
 
@@ -575,6 +591,10 @@ function LandingView(p: LandingProps) {
               </span>
             )}
           </button>
+
+          <div className="mt-3 flex justify-center">
+            <QuotaBadge tool="map" refreshKey={p.quotaRefresh} />
+          </div>
 
           {p.matchError && (
             <div className="mt-4 rounded-2xl border border-red-200 bg-red-50/70 p-4 text-sm text-red-800">
@@ -1501,7 +1521,7 @@ function SoftLoginToast() {
             <div className="text-sm font-extrabold text-neutral-900">Save this map?</div>
             <p className="mt-0.5 text-xs leading-snug text-neutral-700">
               Sign in to keep your career map, track skill progress, and get a
-              personalised weekly digest. Free forever.
+              personalised weekly digest. Saves your work across devices.
             </p>
             <div className="mt-2.5 flex flex-wrap gap-2">
               <button

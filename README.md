@@ -2,7 +2,7 @@
 
 > Stop guessing which jobs to apply for.
 
-A free, no-login AI career-mapping tool. Paste your CV, get a personalised map: roles you fit today, stretch roles 1–2 steps away, and adjacent paths you haven't considered.
+A login-optional, India-aware AI career-mapping tool. Paste your CV, get a personalised map: roles you fit today, stretch roles 1–2 steps away, and adjacent paths you haven't considered. **5 free runs/day per tool** (anonymous gets 2; sign in for 5).
 
 **Built with:** Next.js 15 · TypeScript · Tailwind · Google Gemini 2.5 Flash
 
@@ -24,8 +24,24 @@ Most resume tools only fix your CV. They don't tell you **where it should go**.
 - ✏️ Section rewriter (before / after weak bullets)
 - 📄 PDF / DOCX upload (no copy-paste needed)
 - 🔑 BYOK ("Power Mode") — bring your own Gemini / Claude / OpenAI / Groq key
-- 🛡️ Rate limiting + abuse protection
+- 💳 Pro packs — pay-as-you-go (10 runs / ₹500) for users who hit the daily quota
 - 🚀 Vercel deploy with public URL
+
+---
+
+## 💰 Quotas & pricing
+
+The app is **free to try every day**. To keep our Gemini bill predictable while
+we ship, each tool is rate-limited per day (Asia/Kolkata):
+
+| User type     | Career Map | Resume Studio | Ghost Buster |
+|---------------|-----------:|--------------:|-------------:|
+| Anonymous     |        2/d |           2/d |          2/d |
+| Signed-in     |        5/d |           5/d |          5/d |
+
+When users hit the wall, they see a sign-in prompt (anon) or a waitlist
+modal for upcoming Pro packs (signed-in). No payment integration yet —
+demand is captured in `public.waitlist`.
 
 ---
 

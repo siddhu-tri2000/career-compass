@@ -10,7 +10,7 @@ interface ShareModalProps {
 }
 
 const SHARE_TEXT =
-  "🧭 CareerCompass — paste your CV, get a personalised career map in 30 seconds. Roles you fit today, stretch roles 1–2 steps away, and adjacent paths you haven't considered. Free.";
+  "🧭 CareerCompass — paste your CV, get a personalised career map in 30 seconds. Roles you fit today, stretch roles 1–2 steps away, and adjacent paths you haven't considered.";
 
 export default function ShareModal({ open, onClose, url }: ShareModalProps) {
   const [qr, setQr] = useState<string>("");

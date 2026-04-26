@@ -7,6 +7,8 @@ import CvInput from "@/components/CvInput";
 import ExtrasInput from "@/components/ExtrasInput";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import MiniFooter from "@/components/MiniFooter";
+import QuotaModal, { type QuotaState } from "@/components/QuotaModal";
+import QuotaBadge from "@/components/QuotaBadge";
 import type { PolishOutput, TailorOutput, BulletRewrite } from "@/lib/studioPrompts";
 import {
   EMPTY_EXTRAS,
@@ -31,6 +33,8 @@ function StudioPageInner() {
   const [error, setError] = useState<string | null>(null);
   const [polishResult, setPolishResult] = useState<PolishOutput | null>(null);
   const [tailorResult, setTailorResult] = useState<TailorOutput | null>(null);
+  const [quotaState, setQuotaState] = useState<QuotaState>(null);
+  const [quotaRefresh, setQuotaRefresh] = useState(0);
 
   useEffect(() => {
     if (initialJd && !resume) {
@@ -82,9 +86,18 @@ function StudioPageInner() {
         body: JSON.stringify(body),
       });
       const data = await res.json();
+      if (res.status === 401 && data?.code === "sign_in_required") {
+        setQuotaState({ kind: "sign_in", tool: "studio" });
+        return;
+      }
+      if (res.status === 402 && data?.code === "quota_exceeded") {
+        setQuotaState({ kind: "waitlist", tool: "studio" });
+        return;
+      }
       if (!res.ok) throw new Error(data?.error || "Something went wrong.");
       if (mode === "polish") setPolishResult(data.result as PolishOutput);
       else setTailorResult(data.result as TailorOutput);
+      setQuotaRefresh((n) => n + 1);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong.");
     } finally {
@@ -155,7 +168,7 @@ function StudioPageInner() {
           <p className="mt-4 text-base leading-relaxed text-neutral-600 sm:text-lg">
             Recruiter-grade rewrite + an honest ATS score in 30 seconds.
             Built on what Jobscan, Rezi, and Teal charge for —
-            <span className="font-semibold text-neutral-800"> free</span>.
+            <span className="font-semibold text-neutral-800"> 5 free runs a day</span>.
           </p>
         </header>
 
@@ -297,6 +310,7 @@ function StudioPageInner() {
               </>
             )}
           </button>
+          <QuotaBadge tool="studio" refreshKey={quotaRefresh} />
           {error && (
             <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50/70 px-3.5 py-2.5 text-sm text-red-800">
               <span className="text-base leading-none">⚠️</span>
@@ -309,6 +323,7 @@ function StudioPageInner() {
         {tailorResult && <TailorResultsView result={tailorResult} />}
       </main>
       <MiniFooter />
+      <QuotaModal state={quotaState} onClose={() => setQuotaState(null)} />
     </div>
   );
 }

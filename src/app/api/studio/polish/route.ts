@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { LlmError, polishResumeWithGemini } from "@/lib/gemini";
 import { getServerSupabase, getAdminSupabase } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "@/lib/rateLimit";
+import { checkQuota, quotaBlockedResponse, recordUsage } from "@/lib/usage";
 
 const MIN_RESUME_CHARS = 200;
 const MAX_RESUME_CHARS = 35_000;
@@ -17,6 +18,9 @@ interface PolishRequestBody {
 export async function POST(req: Request) {
   const rl = await checkRateLimit(req, "studio", RATE_LIMITS.studio.max, RATE_LIMITS.studio.window);
   if (!rl.success) return rateLimitResponse(rl);
+
+  const quota = await checkQuota(req, "studio");
+  if (!quota.ok) return quotaBlockedResponse(quota);
 
   let payload: PolishRequestBody;
   try {
@@ -48,6 +52,7 @@ export async function POST(req: Request) {
 
   try {
     const result = await polishResumeWithGemini(resume, apiKey);
+    void recordUsage(req, "studio");
     void saveVersion({ mode: "polish", name, originalText: resume, jdText: null, output: result, atsScore: result.ats_score?.overall ?? null });
     return NextResponse.json({ result });
   } catch (err) {

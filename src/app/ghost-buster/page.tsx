@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import FeedbackWidget from "@/components/FeedbackWidget";
 import MiniFooter from "@/components/MiniFooter";
+import QuotaModal, { type QuotaState } from "@/components/QuotaModal";
+import QuotaBadge from "@/components/QuotaBadge";
 import type { GhostDetectResult, GhostDiagnoseResult } from "@/lib/prompts";
 
 type Mode = "detect" | "diagnose";
@@ -19,6 +21,8 @@ export default function GhostBusterPage() {
   const [error, setError] = useState<string | null>(null);
   const [detectResult, setDetectResult] = useState<GhostDetectResult | null>(null);
   const [diagnoseResult, setDiagnoseResult] = useState<GhostDiagnoseResult | null>(null);
+  const [quotaState, setQuotaState] = useState<QuotaState>(null);
+  const [quotaRefresh, setQuotaRefresh] = useState(0);
 
   // Restore drafts
   useEffect(() => {
@@ -66,9 +70,18 @@ export default function GhostBusterPage() {
         body: JSON.stringify({ mode, jd, cv: mode === "diagnose" ? cv : undefined }),
       });
       const data = await res.json();
+      if (res.status === 401 && data?.code === "sign_in_required") {
+        setQuotaState({ kind: "sign_in", tool: "ghost" });
+        return;
+      }
+      if (res.status === 402 && data?.code === "quota_exceeded") {
+        setQuotaState({ kind: "waitlist", tool: "ghost" });
+        return;
+      }
       if (!res.ok) throw new Error(data.error || "Something went wrong.");
       if (data.mode === "detect") setDetectResult(data.result);
       else setDiagnoseResult(data.result);
+      setQuotaRefresh((n) => n + 1);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unknown error");
     } finally {
@@ -187,6 +200,10 @@ export default function GhostBusterPage() {
           )}
         </button>
 
+        <div className="mt-3 flex justify-center">
+          <QuotaBadge tool="ghost" refreshKey={quotaRefresh} />
+        </div>
+
         {error && (
           <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
             <div className="font-semibold">Couldn&apos;t analyse this.</div>
@@ -212,9 +229,10 @@ export default function GhostBusterPage() {
       )}
 
       <footer className="mt-10 text-center text-xs text-neutral-500">
-        Powered by Google Gemini · Free · Your CV and JDs are never stored.
+        Powered by Google Gemini · Your CV and JDs are never stored.
       </footer>
       <MiniFooter />
+      <QuotaModal state={quotaState} onClose={() => setQuotaState(null)} />
     </main>
   );
 }

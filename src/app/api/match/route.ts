@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { LlmError, matchRolesWithGemini } from "@/lib/gemini";
 import { getServerSupabase, getAdminSupabase } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "@/lib/rateLimit";
+import { checkQuota, quotaBlockedResponse, recordUsage } from "@/lib/usage";
 
 const MIN_RESUME_CHARS = 200;
 const MAX_RESUME_CHARS = 35_000;
@@ -20,6 +21,9 @@ interface MatchRequestBody {
 export async function POST(req: Request) {
   const rl = await checkRateLimit(req, "match", RATE_LIMITS.match.max, RATE_LIMITS.match.window);
   if (!rl.success) return rateLimitResponse(rl);
+
+  const quota = await checkQuota(req, "map");
+  if (!quota.ok) return quotaBlockedResponse(quota);
 
   let payload: MatchRequestBody;
   try {
@@ -63,6 +67,8 @@ export async function POST(req: Request) {
 
   try {
     const result = await matchRolesWithGemini(resume, targetRole, apiKey);
+
+    void recordUsage(req, "map");
 
     // Best-effort log to Supabase (never block the response on this).
     void logSearch({ profile: result.profile, result, targetRole, location });

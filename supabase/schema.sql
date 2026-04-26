@@ -220,3 +220,69 @@ alter table public.feedback enable row level security;
 
 -- Inserts go through service-role only (API route), so no insert policy needed.
 -- No select policies => nobody can read via anon/auth keys; admin uses service role.
+
+-- ============================================================================
+-- DAILY USAGE QUOTA (free tier: 2/day anon · 5/day signed-in, per tool, IST day)
+-- ============================================================================
+create table if not exists public.usage_daily (
+  id            uuid primary key default gen_random_uuid(),
+  subject_type  text not null check (subject_type in ('user','ip')),
+  subject_key   text not null,         -- user uuid (as text) OR sha256(ip)
+  tool          text not null check (tool in ('map','ghost','studio')),
+  day_ist       date not null,          -- bucket key in Asia/Kolkata
+  count         integer not null default 0,
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now()
+);
+
+create unique index if not exists usage_daily_uq
+  on public.usage_daily (subject_type, subject_key, tool, day_ist);
+
+create index if not exists usage_daily_day_idx
+  on public.usage_daily (day_ist desc);
+
+alter table public.usage_daily enable row level security;
+-- Service-role only (no policies needed for reads/writes via admin client).
+
+-- Atomic increment helper: returns the new count after upsert+increment.
+create or replace function public.bump_usage(
+  p_subject_type text,
+  p_subject_key  text,
+  p_tool         text,
+  p_day_ist      date
+) returns integer
+language plpgsql
+security definer
+as $$
+declare
+  new_count integer;
+begin
+  insert into public.usage_daily (subject_type, subject_key, tool, day_ist, count)
+  values (p_subject_type, p_subject_key, p_tool, p_day_ist, 1)
+  on conflict (subject_type, subject_key, tool, day_ist)
+  do update set count = public.usage_daily.count + 1, updated_at = now()
+  returning count into new_count;
+  return new_count;
+end;
+$$;
+
+grant execute on function public.bump_usage(text, text, text, date) to service_role;
+
+-- ============================================================================
+-- WAITLIST (capture demand for Pro packs when users hit the daily limit)
+-- ============================================================================
+create table if not exists public.waitlist (
+  id           uuid primary key default gen_random_uuid(),
+  email        text not null,
+  user_id      uuid references auth.users(id) on delete set null,
+  tool         text,                    -- which tool they hit the wall on
+  source       text,                    -- 'quota_modal' | 'manual' | etc.
+  note         text check (char_length(coalesce(note,'')) <= 500),
+  created_at   timestamptz not null default now()
+);
+
+create unique index if not exists waitlist_email_uq on public.waitlist (lower(email));
+create index if not exists waitlist_created_idx on public.waitlist (created_at desc);
+
+alter table public.waitlist enable row level security;
+-- Service-role only.

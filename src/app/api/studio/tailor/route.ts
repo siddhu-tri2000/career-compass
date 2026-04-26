@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { LlmError, tailorResumeWithGemini } from "@/lib/gemini";
 import { getServerSupabase, getAdminSupabase } from "@/lib/supabase/server";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "@/lib/rateLimit";
+import { checkQuota, quotaBlockedResponse, recordUsage } from "@/lib/usage";
 
 const MIN_RESUME_CHARS = 200;
 const MAX_RESUME_CHARS = 35_000;
@@ -20,6 +21,9 @@ interface TailorRequestBody {
 export async function POST(req: Request) {
   const rl = await checkRateLimit(req, "studio", RATE_LIMITS.studio.max, RATE_LIMITS.studio.window);
   if (!rl.success) return rateLimitResponse(rl);
+
+  const quota = await checkQuota(req, "studio");
+  if (!quota.ok) return quotaBlockedResponse(quota);
 
   let payload: TailorRequestBody;
   try {
@@ -50,6 +54,7 @@ export async function POST(req: Request) {
 
   try {
     const result = await tailorResumeWithGemini(resume, jd, apiKey);
+    void recordUsage(req, "studio");
     void saveVersion({ name, originalText: resume, jdText: jd, output: result, atsScore: result.match_score ?? null });
     return NextResponse.json({ result });
   } catch (err) {

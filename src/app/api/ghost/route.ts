@@ -5,6 +5,7 @@ import {
   ghostDiagnoseWithGemini,
 } from "@/lib/gemini";
 import { checkRateLimit, rateLimitResponse, RATE_LIMITS } from "@/lib/rateLimit";
+import { checkQuota, quotaBlockedResponse, recordUsage } from "@/lib/usage";
 
 const MIN_JD_CHARS = 80;
 const MAX_JD_CHARS = 12_000;
@@ -23,6 +24,9 @@ interface GhostRequestBody {
 export async function POST(req: Request) {
   const rl = await checkRateLimit(req, "ghost", RATE_LIMITS.ghost.max, RATE_LIMITS.ghost.window);
   if (!rl.success) return rateLimitResponse(rl);
+
+  const quota = await checkQuota(req, "ghost");
+  if (!quota.ok) return quotaBlockedResponse(quota);
 
   let payload: GhostRequestBody;
   try {
@@ -74,9 +78,11 @@ export async function POST(req: Request) {
   try {
     if (mode === "detect") {
       const result = await ghostDetectWithGemini(jd, apiKey);
+      void recordUsage(req, "ghost");
       return NextResponse.json({ mode, result });
     }
     const result = await ghostDiagnoseWithGemini(jd, cv, apiKey);
+    void recordUsage(req, "ghost");
     return NextResponse.json({ mode, result });
   } catch (err) {
     if (err instanceof LlmError) {

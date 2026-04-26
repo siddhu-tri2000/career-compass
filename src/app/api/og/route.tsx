@@ -92,7 +92,7 @@ export async function GET(req: Request) {
               border: "1px solid rgba(255,255,255,0.3)",
             }}
           >
-            FREE · India-aware
+            5 FREE/DAY · India-aware
           </span>
         </div>
 
