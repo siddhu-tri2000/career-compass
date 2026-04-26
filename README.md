@@ -2,7 +2,7 @@
 
 > Stop guessing which jobs to apply for.
 
-A login-optional, India-aware AI career-mapping tool. Paste your CV, get a personalised map: roles you fit today, stretch roles 1–2 steps away, and adjacent paths you haven't considered. **5 free runs/day per tool** (anonymous gets 2; sign in for 5).
+A sign-in-gated, India-aware AI career-mapping tool. Paste your CV, get a personalised map: roles you fit today, stretch roles 1–2 steps away, and adjacent paths you haven't considered. **5 free runs/day per tool**, sign in required.
 
 **Built with:** Next.js 15 · TypeScript · Tailwind · Google Gemini 2.5 Flash
 
@@ -31,17 +31,20 @@ Most resume tools only fix your CV. They don't tell you **where it should go**.
 
 ## 💰 Quotas & pricing
 
-The app is **free to try every day**. To keep our Gemini bill predictable while
-we ship, each tool is rate-limited per day (Asia/Kolkata):
+The app is **free to try every day** — sign in (Google or GitHub) and you get
+**5 runs per day total, shared across all tools** (Map / Studio / Ghost Buster).
+Reset is at midnight Asia/Kolkata. Anonymous visitors are prompted to sign in
+on first submit; we tried IP-based anonymous quotas but they were too leaky to
+enforce (mobile NAT, IP rotation).
 
-| User type     | Career Map | Resume Studio | Ghost Buster |
-|---------------|-----------:|--------------:|-------------:|
-| Anonymous     |        2/d |           2/d |          2/d |
-| Signed-in     |        5/d |           5/d |          5/d |
+| User type     | Daily runs (combined across all tools) |
+|---------------|---------------------------------------:|
+| Anonymous     |                                      0 |
+| Signed-in     |                                      5 |
 
-When users hit the wall, they see a sign-in prompt (anon) or a waitlist
-modal for upcoming Pro packs (signed-in). No payment integration yet —
-demand is captured in `public.waitlist`.
+When signed-in users hit the wall, they see a waitlist modal for upcoming
+Pro packs. No payment integration yet — demand is captured in
+`public.waitlist`.
 
 ---
 

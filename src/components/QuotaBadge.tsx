@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 
 interface QuotaBadgeProps {
-  tool: "map" | "ghost" | "studio";
+  /** Tool the page belongs to (kept for analytics/tooltip context — quota is shared). */
+  tool?: "map" | "ghost" | "studio";
   refreshKey?: number;
   className?: string;
 }
@@ -11,14 +12,15 @@ interface QuotaBadgeProps {
 interface UsageResp {
   signedIn: boolean;
   limit: number;
-  byTool: Record<string, { used: number; remaining: number }>;
+  used: number;
+  remaining: number;
 }
 
 /**
- * Tiny pill that shows "X of Y left today" for the given tool.
- * Pass `refreshKey` (any value that changes after a successful run) to refetch.
+ * Tiny pill that shows "X of Y left today" — quota is shared across all tools,
+ * so the same number renders on every page.
  */
-export default function QuotaBadge({ tool, refreshKey, className = "" }: QuotaBadgeProps) {
+export default function QuotaBadge({ refreshKey, className = "" }: QuotaBadgeProps) {
   const [data, setData] = useState<UsageResp | null>(null);
 
   useEffect(() => {
@@ -35,8 +37,20 @@ export default function QuotaBadge({ tool, refreshKey, className = "" }: QuotaBa
   }, [refreshKey]);
 
   if (!data) return null;
-  const t = data.byTool[tool] ?? { used: 0, remaining: data.limit };
-  const remaining = t.remaining;
+
+  if (!data.signedIn) {
+    return (
+      <span
+        className={`inline-flex items-center gap-1.5 rounded-full border border-indigo-200 bg-indigo-50 px-2.5 py-0.5 text-[11px] font-semibold text-indigo-800 ${className}`}
+        title={`Sign in to use the tools — ${data.limit} free runs/day across all tools.`}
+      >
+        <span aria-hidden>🔐</span>
+        <span>Sign in for {data.limit} runs/day</span>
+      </span>
+    );
+  }
+
+  const remaining = data.remaining;
   const tone =
     remaining === 0
       ? "border-rose-200 bg-rose-50 text-rose-800"
@@ -47,11 +61,7 @@ export default function QuotaBadge({ tool, refreshKey, className = "" }: QuotaBa
   return (
     <span
       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${tone} ${className}`}
-      title={
-        data.signedIn
-          ? `Free tier: ${data.limit} runs/day per tool`
-          : `Anonymous tier: ${data.limit} runs/day. Sign in for ${5}/day.`
-      }
+      title={`Free tier: ${data.limit} runs/day shared across Map, Studio, and Ghost Buster`}
     >
       <span aria-hidden>{remaining === 0 ? "🚫" : "⚡"}</span>
       <span>

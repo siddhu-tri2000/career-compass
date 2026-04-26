@@ -381,7 +381,7 @@ function FinalCta() {
             Most users get answers in under a minute.
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-neutral-600">
-            5 free runs per tool, every day. Anonymous gets 2 — sign in for the rest. Your CV is processed by Gemini and never stored on our servers.
+          Sign in once — get 5 free runs per day, shared across Map, Studio, and Ghost Buster. Your CV is processed by Gemini and never stored on our servers.
           </p>
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
             <Link

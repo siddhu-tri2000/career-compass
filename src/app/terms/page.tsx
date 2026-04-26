@@ -42,7 +42,7 @@ export default function TermsPage() {
         <section>
           <h2 className="text-xl font-bold text-neutral-900">1. The service</h2>
           <p className="mt-2">
-            CareerCompass (&ldquo;the Service&rdquo;) is an AI-powered career toolkit operated as an open-source project. Each tool is currently offered with a daily free quota (2 runs/day for anonymous users, 5 runs/day for signed-in users); paid plans for higher usage may be introduced in the future.
+            CareerCompass (&ldquo;the Service&rdquo;) is an AI-powered career toolkit operated as an open-source project. Use of the AI tools requires sign-in and is currently offered with a daily free quota of 5 runs per signed-in user, shared across all tools; paid plans for higher usage may be introduced in the future.
             It uses <strong>Google Gemini</strong> to analyse CVs and generate suggestions across four tools:
             Career Map, Resume Studio, Ghost Buster, and Journey.
           </p>

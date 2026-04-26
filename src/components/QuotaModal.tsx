@@ -75,7 +75,7 @@ export default function QuotaModal({ state, onClose }: QuotaModalProps) {
   );
 }
 
-/* ---------- SIGN-IN BODY (anon hit free wall) ---------- */
+/* ---------- SIGN-IN BODY (anonymous request blocked) ---------- */
 
 function SignInBody({ tool }: { tool: "map" | "ghost" | "studio" }) {
   const [loading, setLoading] = useState<string | null>(null);
@@ -101,8 +101,8 @@ function SignInBody({ tool }: { tool: "map" | "ghost" | "studio" }) {
   return (
     <>
       <p className="mt-1 mb-5 text-sm leading-relaxed text-neutral-600">
-        You&apos;ve used your <strong className="text-neutral-900">2 free {TOOL_LABEL[tool]} runs</strong> for today.
-        Sign in (one click) to unlock <strong className="text-neutral-900">5 more</strong> — saves your work too.
+        Sign in (one click) to use <strong className="text-neutral-900">{TOOL_LABEL[tool]}</strong> —
+        you&apos;ll get <strong className="text-neutral-900">5 free runs per day</strong>, and your work is saved.
       </p>
 
       <div className="space-y-2.5">

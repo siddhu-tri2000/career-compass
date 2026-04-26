@@ -45,7 +45,7 @@ const TONES: Array<{ id: Tone; emoji: string; label: string; sub: string }> = [
 const TRUST_PILLS = [
   { icon: "⚡", label: "30-second results" },
   { icon: "🔒", label: "CV never stored" },
-  { icon: "⚡", label: "5 free runs/day" },
+  { icon: "🔐", label: "Sign in · 5 runs/day" },
   { icon: "🇮🇳", label: "India-aware" },
 ];
 
