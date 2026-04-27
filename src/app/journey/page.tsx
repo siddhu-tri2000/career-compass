@@ -3,8 +3,8 @@ import { Compass, Target, CheckCircle2, Lock, Wrench, GraduationCap, Trophy, Roc
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import MiniFooter from "@/components/MiniFooter";
-import NavBar from "@/components/NavBar";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 import type { LearningResource } from "@/lib/prompts";
 
 interface Journey {
@@ -117,9 +117,8 @@ export default function JourneyPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#08090A] text-white">
-      <NavBar />
-    <main className="relative mx-auto max-w-5xl px-4 pb-20 sm:px-6">
+    <PageChrome>
+    <ContentContainer>
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px] -mx-4 sm:-mx-6">
         <div className="mesh-soft" />
       </div>
@@ -400,9 +399,8 @@ export default function JourneyPage() {
           </div>
         </>
       )}
-      <MiniFooter />
-    </main>
-    </div>
+      </ContentContainer>
+    </PageChrome>
   );
 }
 

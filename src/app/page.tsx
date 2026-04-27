@@ -11,8 +11,8 @@ import {
   Ghost,
   Mountain,
 } from "lucide-react";
-import NavBar from "@/components/NavBar";
-import MiniFooter from "@/components/MiniFooter";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 import LiveStats from "@/components/LiveStats";
 
 export const metadata: Metadata = {
@@ -90,17 +90,14 @@ const STEPS = [
 
 export default function LandingPage() {
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#08090A] text-white antialiased">
-      <NavBar />
+    <PageChrome>
       <Hero />
-
-      <div className="relative z-10 mx-auto max-w-6xl px-6">
+      <ContentContainer width="wide" as="div" className="relative z-10">
         <FeatureGrid />
         <HowItWorks />
         <FinalCta />
-      </div>
-      <MiniFooter />
-    </div>
+      </ContentContainer>
+    </PageChrome>
   );
 }
 

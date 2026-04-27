@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Compass, FileText, Ghost, Mountain } from "lucide-react";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 
 const SITE_URL = "https://career-compass-orpin-tau.vercel.app";
 
@@ -71,7 +73,8 @@ export default async function SharePage({ searchParams }: PageProps) {
     .slice(0, 5);
 
   return (
-    <main className="relative mx-auto flex min-h-screen max-w-3xl flex-col items-center justify-center px-6 py-12 text-center">
+    <PageChrome hideNav>
+    <ContentContainer width="narrow" className="relative flex min-h-screen flex-col items-center justify-center text-center">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px]">
         <div className="mesh-soft" />
       </div>
@@ -133,6 +136,7 @@ export default async function SharePage({ searchParams }: PageProps) {
         <span className="rounded-full border border-white/[0.08] bg-[#0C0D10] px-3 py-1 font-semibold text-white/80 backdrop-blur inline-flex items-center gap-1"><Ghost className="h-3 w-3" /> JD Ghost Buster</span>
         <span className="rounded-full border border-white/[0.08] bg-[#0C0D10] px-3 py-1 font-semibold text-white/80 backdrop-blur inline-flex items-center gap-1"><Mountain className="h-3 w-3" /> Career Journey</span>
       </div>
-    </main>
+    </ContentContainer>
+    </PageChrome>
   );
 }

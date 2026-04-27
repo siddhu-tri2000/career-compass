@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 
 export const metadata: Metadata = {
   title: "Terms of Service — CareerCompass",
@@ -11,7 +13,8 @@ const LAST_UPDATED = "April 2026";
 
 export default function TermsPage() {
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
+    <PageChrome>
+    <ContentContainer width="narrow">
       <Link
         href="/"
         className="mb-6 inline-flex items-center gap-2 text-sm font-semibold text-white/65 hover:text-white"
@@ -152,6 +155,7 @@ export default function TermsPage() {
         <Link href="/privacy" className="hover:text-white/90">Privacy Policy →</Link>
         <Link href="/" className="hover:text-white/90">← Back to home</Link>
       </div>
-    </main>
+    </ContentContainer>
+    </PageChrome>
   );
 }

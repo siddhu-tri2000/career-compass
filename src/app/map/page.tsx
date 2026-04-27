@@ -9,8 +9,7 @@ import type {
 } from "@/lib/prompts";
 import LiveJobsPanel from "@/components/LiveJobsPanel";
 import ShareModal from "@/components/ShareModal";
-import NavBar from "@/components/NavBar";
-import MiniFooter from "@/components/MiniFooter";
+import PageChrome from "@/components/PageChrome";
 import UserMenu from "@/components/UserMenu";
 import CvInput from "@/components/CvInput";
 import ExtrasInput from "@/components/ExtrasInput";
@@ -228,12 +227,32 @@ export default function HomePage() {
   const hasResults = matchResult !== null;
 
   return (
-    <main className="relative min-h-screen overflow-x-hidden bg-[#08090A] text-white">
+    <PageChrome navExtra={
+        <>
+          {hasResults && (
+            <button
+              onClick={startOver}
+              aria-label="New search"
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.1] bg-transparent px-2.5 py-1.5 text-[13px] font-medium text-white/70 transition hover:border-white/25 hover:text-white"
+            >
+              <span>←</span>
+              <span className="hidden sm:inline">New search</span>
+            </button>
+          )}
+          <button
+            onClick={() => setShareOpen(true)}
+            aria-label="Share"
+            className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.12] bg-white/[0.06] px-3 py-1.5 text-[13px] font-semibold text-white transition hover:bg-white/[0.1]"
+          >
+            <Share2 className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Share</span>
+          </button>
+        </>
+      }>
+      <div className="relative overflow-x-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px]">
         <div className="mesh-soft" />
       </div>
-
-      <TopNav onShare={() => setShareOpen(true)} hasResults={hasResults} onReset={startOver} />
 
       <div className="mx-auto max-w-6xl px-4 pb-16 sm:px-6">
         {!hasResults ? (
@@ -284,11 +303,11 @@ export default function HomePage() {
         )}
       </div>
 
-      <MiniFooter />
       <ShareModal open={shareOpen} onClose={() => setShareOpen(false)} url={buildShareUrl(matchResult)} />
       {hasResults && <SoftLoginToast />}
       <QuotaModal state={quotaState} onClose={() => setQuotaState(null)} />
-    </main>
+      </div>
+    </PageChrome>
   );
 }
 
@@ -302,45 +321,6 @@ function buildShareUrl(result: MatchResult | null): string {
   const skills = (result.profile?.top_skills ?? []).slice(0, 5).join(",");
   if (skills) params.set("t", skills.slice(0, 200));
   return `${SITE_URL}/s?${params.toString()}`;
-}
-
-/* ---------- TOP NAV ---------- */
-
-function TopNav({
-  onShare,
-  hasResults,
-  onReset,
-}: {
-  onShare: () => void;
-  hasResults: boolean;
-  onReset: () => void;
-}) {
-  return (
-    <NavBar
-      extra={
-        <>
-          {hasResults && (
-            <button
-              onClick={onReset}
-              aria-label="New search"
-              className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.1] bg-transparent px-2.5 py-1.5 text-[13px] font-medium text-white/70 transition hover:border-white/25 hover:text-white"
-            >
-              <span>←</span>
-              <span className="hidden sm:inline">New search</span>
-            </button>
-          )}
-          <button
-            onClick={onShare}
-            aria-label="Share"
-            className="inline-flex items-center gap-1.5 rounded-md border border-white/[0.12] bg-white/[0.06] px-3 py-1.5 text-[13px] font-semibold text-white transition hover:bg-white/[0.1]"
-          >
-            <Share2 className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Share</span>
-          </button>
-        </>
-      }
-    />
-  );
 }
 
 /* ---------- LANDING VIEW ---------- */

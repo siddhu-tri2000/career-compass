@@ -1,4 +1,6 @@
 import { getAdminSupabase } from "@/lib/supabase/server";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 
 export const dynamic = "force-dynamic";
 
@@ -33,7 +35,8 @@ export default async function UnsubscribePage({ searchParams }: Props) {
   }
 
   return (
-    <main className="mx-auto flex min-h-[60vh] max-w-xl flex-col items-center justify-center px-6 py-12 text-center">
+    <PageChrome hideNav>
+    <ContentContainer width="narrow" className="flex min-h-[60vh] flex-col items-center justify-center text-center">
       {status === "ok" && (
         <>
           <div><svg className="mx-auto h-12 w-12 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}><path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg></div>
@@ -76,6 +79,7 @@ export default async function UnsubscribePage({ searchParams }: Props) {
       >
         Back to CareerCompass
       </a>
-    </main>
+    </ContentContainer>
+    </PageChrome>
   );
 }

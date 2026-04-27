@@ -4,11 +4,11 @@ import { Compass, Ghost, Search, Flag, CheckCircle2, AlertTriangle, XCircle, Tar
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import FeedbackWidget from "@/components/FeedbackWidget";
-import MiniFooter from "@/components/MiniFooter";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 import QuotaModal, { type QuotaState } from "@/components/QuotaModal";
 import QuotaBadge from "@/components/QuotaBadge";
 import JdSourceInput from "@/components/JdSourceInput";
-import NavBar from "@/components/NavBar";
 import type { GhostDetectResult, GhostDiagnoseResult } from "@/lib/prompts";
 
 type Mode = "detect" | "diagnose";
@@ -93,9 +93,8 @@ export default function GhostBusterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#08090A] text-white">
-      <NavBar />
-    <main className="relative mx-auto max-w-5xl px-4 pb-20 sm:px-6">
+    <PageChrome>
+    <ContentContainer>
       <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px] -mx-4 sm:-mx-6">
         <div className="mesh-soft" />
       </div>
@@ -226,10 +225,9 @@ export default function GhostBusterPage() {
         </div>
       )}
 
-      <MiniFooter />
       <QuotaModal state={quotaState} onClose={() => setQuotaState(null)} />
-    </main>
-    </div>
+    </ContentContainer>
+    </PageChrome>
   );
 }
 

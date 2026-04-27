@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { getServerSupabase, getAdminSupabase } from "@/lib/supabase/server";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -34,13 +36,15 @@ export default async function AdminWaitlistPage() {
   if (!email) redirect("/");
   if (!admins.has(email)) {
     return (
-      <main className="mx-auto max-w-2xl px-4 py-20">
+      <PageChrome>
+      <ContentContainer>
         <h1 className="text-2xl font-semibold">Forbidden</h1>
         <p className="mt-2 text-white/65">
           Your account ({email}) is not in the admin list. Add it to the{" "}
           <code className="rounded bg-white/[0.05] px-1">ADMIN_EMAILS</code> env var (comma-separated) and redeploy.
         </p>
-      </main>
+      </ContentContainer>
+      </PageChrome>
     );
   }
 
@@ -60,7 +64,8 @@ export default async function AdminWaitlistPage() {
   }, {});
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <PageChrome>
+    <ContentContainer>
       <h1 className="text-2xl font-bold text-white">Waitlist · Pro packs</h1>
       <p className="mt-1 text-sm text-white/65">
         Folks who hit the daily quota and asked to be notified when paid packs launch.
@@ -108,7 +113,8 @@ export default async function AdminWaitlistPage() {
           </tbody>
         </table>
       </div>
-    </main>
+    </ContentContainer>
+    </PageChrome>
   );
 }
 

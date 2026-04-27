@@ -2,6 +2,8 @@ import { Compass, Target, CheckCircle2, Rocket, GraduationCap, Wrench, Link2 } f
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { getServerSupabase } from "@/lib/supabase/server";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 import type { MatchResult, GapWithResources, LearningResource } from "@/lib/prompts";
 
 export const dynamic = "force-dynamic";
@@ -70,23 +72,19 @@ export default async function HistoryDetailPage({ params }: PageProps) {
   });
 
   return (
-    <div className="min-h-screen bg-[#08090A] text-white">
-      <nav className="sticky top-0 z-30 border-b border-white/[0.06] bg-[#0C0D10] backdrop-blur-md">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-3 sm:px-6">
-          <Link href="/history" className="flex items-center gap-2 text-base font-bold text-white">
-            <Compass className="h-4 w-4 text-[#A5B4FC]" />
-            <span>← History</span>
+    <PageChrome>
+      <ContentContainer width="narrow">
+        <div className="mb-6 flex items-center justify-between">
+          <Link href="/history" className="flex items-center gap-2 text-sm font-semibold text-white/65 hover:text-white">
+            <span>←</span><span>Back to history</span>
           </Link>
           <Link
             href="/"
             className="rounded-lg bg-indigo-700 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-800"
           >
-            <Compass className="mr-1 inline h-4 w-4" /> Run a fresh map
+            Run a fresh map
           </Link>
         </div>
-      </nav>
-
-      <main className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
         <header className="mb-6">
           <div className="text-xs font-bold uppercase tracking-wider text-indigo-300">Snapshot · {dateLabel}</div>
           <h1 className="mt-1 text-2xl font-extrabold text-white sm:text-3xl">
@@ -263,7 +261,7 @@ export default async function HistoryDetailPage({ params }: PageProps) {
             ← Back to history
           </Link>
         </div>
-      </main>
-    </div>
+      </ContentContainer>
+    </PageChrome>
   );
 }

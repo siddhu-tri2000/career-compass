@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import NavBar from "@/components/NavBar";
-import MiniFooter from "@/components/MiniFooter";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 import { getServerSupabase } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -30,10 +30,8 @@ export default async function HistoryPage() {
   const rows = (data ?? []) as SearchRow[];
 
   return (
-    <div className="min-h-screen bg-[#08090A] text-white">
-      <NavBar />
-
-      <main className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+    <PageChrome>
+      <ContentContainer>
         <h1 className="mb-2 text-3xl font-bold text-white">Your search history</h1>
         <p className="mb-8 text-sm text-white/65">
           The last {rows.length} maps you generated. We never store your CV text — only the
@@ -100,8 +98,7 @@ export default async function HistoryPage() {
             ))}
           </ul>
         )}
-      </main>
-      <MiniFooter />
-    </div>
+      </ContentContainer>
+    </PageChrome>
   );
 }

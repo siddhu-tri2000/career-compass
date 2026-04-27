@@ -7,8 +7,8 @@ import { useSearchParams } from "next/navigation";
 import CvInput from "@/components/CvInput";
 import ExtrasInput from "@/components/ExtrasInput";
 import FeedbackWidget from "@/components/FeedbackWidget";
-import MiniFooter from "@/components/MiniFooter";
-import NavBar from "@/components/NavBar";
+import PageChrome from "@/components/PageChrome";
+import ContentContainer from "@/components/ContentContainer";
 import QuotaModal, { type QuotaState } from "@/components/QuotaModal";
 import QuotaBadge from "@/components/QuotaBadge";
 import JdSourceInput from "@/components/JdSourceInput";
@@ -111,13 +111,8 @@ function StudioPageInner() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#08090A] text-white">
-      <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-[640px]">
-        <div className="mesh-soft" />
-      </div>
-      <NavBar />
-
-      <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
+    <PageChrome>
+      <ContentContainer width="wide">
         {/* HEADER + MODE CONTROL — uses full canvas */}
         <header className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
@@ -317,10 +312,9 @@ function StudioPageInner() {
             onQuotaBlocked={setQuotaState}
           />
         )}
-      </main>
-      <MiniFooter />
+      </ContentContainer>
       <QuotaModal state={quotaState} onClose={() => setQuotaState(null)} />
-    </div>
+    </PageChrome>
   );
 }
 
