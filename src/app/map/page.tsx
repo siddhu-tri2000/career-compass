@@ -1101,7 +1101,7 @@ function AssessmentTab(p: AssessProps) {
                 onClick={() => p.setTone(t.id)}
                 className={`rounded-lg border px-3 py-2 text-left text-sm transition ${
                   p.tone === t.id
-                    ? "border-neutral-900 bg-neutral-900 text-white"
+                    ? "border-indigo-500 bg-indigo-500/15 text-white ring-1 ring-indigo-500/40"
                     : "border-white/[0.08] bg-white/[0.03] text-white/80 hover:border-white/20"
                 }`}
               >
@@ -1110,7 +1110,7 @@ function AssessmentTab(p: AssessProps) {
                 </div>
                 <div
                   className={`text-xs ${
-                    p.tone === t.id ? "text-white/20" : "text-white/50"
+                    p.tone === t.id ? "text-indigo-300/70" : "text-white/50"
                   }`}
                 >
                   {t.sub}

@@ -71,7 +71,7 @@ export default function LiveJobsPanel({ role, location }: LiveJobsPanelProps) {
   const moreCount = Math.max(0, listings.length - PREVIEW_COUNT);
 
   return (
-    <div className="mt-4 rounded-xl border border-indigo-100 bg-gradient-to-br from-indigo-50/40 to-white p-3.5">
+    <div className="mt-4 rounded-xl border border-white/[0.08] bg-white/[0.03] p-3.5">
       <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <span aria-hidden className="text-base">📡</span>
@@ -118,7 +118,7 @@ export default function LiveJobsPanel({ role, location }: LiveJobsPanelProps) {
       )}
 
       {!loading && error && (
-        <div className="rounded-lg border border-amber-400/20 bg-amber-400/10 p-2.5 text-xs text-amber-900">
+        <div className="rounded-lg border border-amber-400/20 bg-amber-400/10 p-2.5 text-xs text-amber-200">
           {error}
         </div>
       )}
@@ -191,7 +191,7 @@ export default function LiveJobsPanel({ role, location }: LiveJobsPanelProps) {
       )}
 
       {portalLinks.length > 0 && (
-        <div className="mt-3 border-t border-indigo-100 pt-2.5">
+        <div className="mt-3 border-t border-white/[0.08] pt-2.5">
           <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-wide text-white/50">
             Also search on
           </div>
