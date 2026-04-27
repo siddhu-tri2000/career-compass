@@ -123,9 +123,9 @@ export default function GhostBusterPage() {
         </p>
       </header>
 
-      {/* Mode toggle */}
-      <div className="fade-up fade-up-delay-3 mb-6 flex justify-center">
-        <div className="inline-flex rounded-xl border-2 border-neutral-200 bg-white/80 p-1 backdrop-blur">
+      {/* Mode toggle — sticky once scrolling so context never gets lost */}
+      <div className="fade-up fade-up-delay-3 sticky top-2 z-20 mb-6 flex justify-center">
+        <div className="inline-flex rounded-xl border-2 border-neutral-200 bg-white/95 p-1 shadow-md backdrop-blur">
           <button
             onClick={() => setMode("detect")}
             className={`rounded-lg px-4 py-2 text-sm font-semibold transition ${

@@ -45,6 +45,7 @@ export default function JourneyPage() {
   const [logging, setLogging] = useState<string | null>(null);
   const [logMinutes, setLogMinutes] = useState<number>(15);
   const [logTitle, setLogTitle] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<"all" | Journey["status"]>("all");
 
   async function load() {
     setLoading(true);
@@ -200,8 +201,35 @@ export default function JourneyPage() {
             <StatTile label="Hours logged" value={stats.totalHours.toFixed(1)} icon="⏱" />
           </div>
 
+          {/* Status filter chips */}
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-neutral-500">Show</span>
+            {([
+              { id: "all" as const, label: "All", count: stats.total },
+              { id: "in_progress" as const, label: "🔥 In progress", count: stats.inProgress },
+              { id: "completed" as const, label: "✅ Completed", count: stats.completed },
+              { id: "paused" as const, label: "⏸ Paused", count: journeys.filter(j => j.status === "paused").length },
+            ]).map((f) => (
+              <button
+                key={f.id}
+                onClick={() => setStatusFilter(f.id)}
+                disabled={f.count === 0 && f.id !== "all"}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold transition disabled:cursor-not-allowed disabled:opacity-40 ${
+                  statusFilter === f.id
+                    ? "bg-indigo-700 text-white shadow"
+                    : "border border-neutral-300 bg-white text-neutral-700 hover:border-indigo-400 hover:text-indigo-700"
+                }`}
+              >
+                <span>{f.label}</span>
+                <span className={`rounded-full px-1.5 text-[10px] font-bold tabular-nums ${
+                  statusFilter === f.id ? "bg-white/25" : "bg-neutral-100 text-neutral-700"
+                }`}>{f.count}</span>
+              </button>
+            ))}
+          </div>
+
           <div className="mt-6 space-y-4">
-            {journeys.map((j) => {
+            {journeys.filter((j) => statusFilter === "all" || j.status === statusFilter).map((j) => {
               const pct = Math.min(100, Math.round((Number(j.hours_logged) / HOURS_TO_CV) * 100));
               const milestone =
                 j.status === "completed"
