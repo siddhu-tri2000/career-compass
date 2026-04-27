@@ -37,6 +37,7 @@ function StudioPageInner() {
   const [tailorResult, setTailorResult] = useState<TailorOutput | null>(null);
   const [quotaState, setQuotaState] = useState<QuotaState>(null);
   const [quotaRefresh, setQuotaRefresh] = useState(0);
+  const hasResults = Boolean(polishResult || tailorResult);
 
   useEffect(() => {
     if (initialJd && !resume) {
@@ -143,182 +144,195 @@ function StudioPageInner() {
       </nav>
 
       <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
-        {/* HEADER */}
-        <header className="mb-8 max-w-3xl">
-          <div className="mb-4 inline-flex">
-            <span className="sticker text-purple-800">
-              <span className="float-y inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 text-white shadow-sm">
-                <span className="text-[10px]">🛠</span>
+        {/* HEADER + MODE CONTROL — uses full canvas */}
+        <header className="mb-8 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="max-w-3xl">
+            <div className="mb-4 inline-flex">
+              <span className="sticker text-purple-800">
+                <span className="float-y inline-flex h-5 w-5 items-center justify-center rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 text-white shadow-sm">
+                  <span className="text-[10px]">🛠</span>
+                </span>
+                <span>Resume Studio</span>
               </span>
-              <span>Resume Studio</span>
-            </span>
+            </div>
+            <h1 className="hero-shimmer bg-gradient-to-br from-neutral-900 via-purple-900 to-fuchsia-900 bg-clip-text pb-2 text-3xl font-extrabold leading-[1.1] tracking-tight text-transparent sm:text-5xl">
+              Make your CV{" "}
+              <span className="relative inline-block whitespace-nowrap text-purple-700">
+                survive any ATS.
+                <svg
+                  aria-hidden
+                  viewBox="0 0 220 14"
+                  preserveAspectRatio="none"
+                  className="absolute -bottom-1 left-0 h-2.5 w-full text-amber-300/80"
+                >
+                  <path d="M2 9 C 60 2, 120 14, 218 5" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" />
+                </svg>
+              </span>
+            </h1>
+            <p className="mt-4 text-base leading-relaxed text-neutral-600 sm:text-lg">
+              Recruiter-grade rewrite + an honest ATS score in 30 seconds.
+              Built on what Jobscan, Rezi, and Teal charge for —
+              <span className="font-semibold text-neutral-800"> 5 free runs a day</span>.
+            </p>
           </div>
-          <h1 className="hero-shimmer bg-gradient-to-br from-neutral-900 via-purple-900 to-fuchsia-900 bg-clip-text pb-2 text-3xl font-extrabold leading-[1.1] tracking-tight text-transparent sm:text-5xl">
-            Make your CV{" "}
-            <span className="relative inline-block whitespace-nowrap text-purple-700">
-              survive any ATS.
-              <svg
-                aria-hidden
-                viewBox="0 0 220 14"
-                preserveAspectRatio="none"
-                className="absolute -bottom-1 left-0 h-2.5 w-full text-amber-300/80"
+
+          <div className="flex flex-col items-start gap-2 lg:items-end">
+            <div className="inline-flex items-center gap-1 rounded-2xl bg-white p-1.5 shadow-sm ring-1 ring-neutral-200/70">
+              <button
+                onClick={() => setMode("polish")}
+                className={`squish inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition ${
+                  mode === "polish"
+                    ? "bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white shadow-md"
+                    : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+                }`}
               >
-                <path d="M2 9 C 60 2, 120 14, 218 5" stroke="currentColor" strokeWidth="6" strokeLinecap="round" fill="none" />
-              </svg>
-            </span>
-          </h1>
-          <p className="mt-4 text-base leading-relaxed text-neutral-600 sm:text-lg">
-            Recruiter-grade rewrite + an honest ATS score in 30 seconds.
-            Built on what Jobscan, Rezi, and Teal charge for —
-            <span className="font-semibold text-neutral-800"> 5 free runs a day</span>.
-          </p>
+                <span className="text-base leading-none">✨</span>
+                <span>ATS Polish</span>
+              </button>
+              <button
+                onClick={() => setMode("tailor")}
+                className={`squish inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition ${
+                  mode === "tailor"
+                    ? "bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white shadow-md"
+                    : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
+                }`}
+              >
+                <span className="text-base leading-none">🎯</span>
+                <span>Tailor to JD</span>
+              </button>
+            </div>
+            <p className="max-w-xs text-xs text-neutral-500 lg:text-right">
+              {mode === "polish"
+                ? "We'll rewrite your CV for any ATS — no specific job needed."
+                : "We'll rewrite your CV for one specific job — paste the JD on the right."}
+            </p>
+          </div>
         </header>
 
-        {/* MODE SEGMENTED CONTROL */}
-        <div className="mb-6 inline-flex items-center gap-1 rounded-2xl bg-white p-1.5 shadow-sm ring-1 ring-neutral-200/70">
-          <button
-            onClick={() => setMode("polish")}
-            className={`squish inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition ${
-              mode === "polish"
-                ? "bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white shadow-md"
-                : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
-            }`}
-          >
-            <span className="text-base leading-none">✨</span>
-            <span>ATS Polish</span>
-          </button>
-          <button
-            onClick={() => setMode("tailor")}
-            className={`squish inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold transition ${
-              mode === "tailor"
-                ? "bg-gradient-to-br from-purple-600 to-fuchsia-600 text-white shadow-md"
-                : "text-neutral-600 hover:bg-neutral-50 hover:text-neutral-900"
-            }`}
-          >
-            <span className="text-base leading-none">🎯</span>
-            <span>Tailor to JD</span>
-          </button>
-        </div>
+        {/* INPUT GRID — 12-col, sticky helper aside */}
+        <section className="grid gap-5 lg:grid-cols-12">
+          {/* INPUT COLUMN */}
+          <div className={`space-y-5 ${hasResults ? "lg:col-span-12" : "lg:col-span-8"}`}>
+            <div className={`grid gap-5 ${mode === "tailor" ? "xl:grid-cols-2" : "grid-cols-1"}`}>
+              <div className="bento glow-soft p-5 sm:p-6">
+                <div className="mb-3 flex items-center justify-between">
+                  <span className="eyebrow">Your CV</span>
+                  <span className="text-[11px] font-medium text-neutral-500">PDF · DOCX · TXT</span>
+                </div>
+                <CvInput value={resume} onChange={setResume} />
+                <div className="mt-3">
+                  <ExtrasInput value={extras} onChange={setExtras} />
+                </div>
+              </div>
 
-        <p className="mb-5 text-sm text-neutral-600">
-          {mode === "polish"
-            ? "We'll rewrite your CV for any ATS — no specific job needed."
-            : "We'll rewrite your CV for one specific job — paste the JD on the right."}
-        </p>
-
-        {/* INPUT GRID — uses full canvas */}
-        <section className="grid gap-5 lg:grid-cols-3">
-          {/* CV column */}
-          <div className={`bento glow-soft p-5 sm:p-6 ${mode === "polish" ? "lg:col-span-2" : ""}`}>
-            <div className="mb-3 flex items-center justify-between">
-              <span className="eyebrow">Your CV</span>
-              <span className="text-[11px] font-medium text-neutral-500">PDF · DOCX · TXT</span>
+              {mode === "tailor" && (
+                <div className="bento surface-rose p-5 sm:p-6">
+                  <JdSourceInput
+                    value={jd}
+                    onChange={setJd}
+                    minChars={80}
+                    maxChars={12_000}
+                    rows={16}
+                    label="Job description"
+                    placeholder="Paste the full job description here — title, responsibilities, requirements, the works…"
+                    textareaClassName="bg-white/80 leading-relaxed focus:border-purple-400 focus:ring-purple-100"
+                  />
+                  <p className="mt-2 text-xs text-neutral-500">
+                    Tip: paste the whole posting — we use the requirements + nice-to-haves.
+                  </p>
+                </div>
+              )}
             </div>
-            <CvInput value={resume} onChange={setResume} />
-            <div className="mt-3">
-              <ExtrasInput value={extras} onChange={setExtras} />
+
+            {/* CTA bar — sits inside input column right below CV/JD */}
+            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-neutral-200/70 bg-white/70 p-3 backdrop-blur sm:p-4">
+              <button
+                onClick={run}
+                disabled={loading}
+                className="cta-sheen squish glow-purple inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 px-6 py-3.5 text-base font-bold text-white disabled:cursor-not-allowed disabled:from-neutral-300 disabled:via-neutral-300 disabled:to-neutral-300 disabled:shadow-none"
+              >
+                {loading ? (
+                  <>
+                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    <span>Analysing your CV…</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-lg leading-none">{mode === "polish" ? "✨" : "🎯"}</span>
+                    <span>{mode === "polish" ? "Polish my CV" : "Tailor my CV to this JD"}</span>
+                    <span>→</span>
+                  </>
+                )}
+              </button>
+              <QuotaBadge tool="studio" refreshKey={quotaRefresh} />
+              {error && (
+                <div className="flex w-full items-start gap-2 rounded-xl border border-red-200 bg-red-50/70 px-3.5 py-2.5 text-sm text-red-800">
+                  <span className="text-base leading-none">⚠️</span>
+                  <span className="font-medium">{error}</span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* JD column (tailor only) */}
-          {mode === "tailor" && (
-            <div className="bento surface-rose p-5 sm:p-6">
-              <JdSourceInput
-                value={jd}
-                onChange={setJd}
-                minChars={80}
-                maxChars={12_000}
-                rows={16}
-                label="Job description"
-                placeholder="Paste the full job description here — title, responsibilities, requirements, the works…"
-                textareaClassName="bg-white/80 leading-relaxed focus:border-purple-400 focus:ring-purple-100"
-              />
-              <p className="mt-2 text-xs text-neutral-500">
-                Tip: paste the whole posting — we use the requirements + nice-to-haves.
-              </p>
-            </div>
+          {/* HELPER ASIDE — sticky on lg+, hidden once results land */}
+          {!hasResults && (
+            <aside className="space-y-4 lg:col-span-4 lg:sticky lg:top-24 lg:self-start">
+              <div className="bento surface-lavender p-5">
+                <span className="eyebrow">What you&apos;ll get</span>
+                <ul className="mt-3 space-y-2.5 text-sm text-neutral-800">
+                  <li className="flex gap-2.5">
+                    <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">📊</span>
+                    <span><span className="font-semibold">ATS score 0–100</span> with category breakdown.</span>
+                  </li>
+                  <li className="flex gap-2.5">
+                    <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">✍️</span>
+                    <span><span className="font-semibold">Bullet-by-bullet rewrites</span> — before vs after.</span>
+                  </li>
+                  {mode === "tailor" ? (
+                    <>
+                      <li className="flex gap-2.5">
+                        <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">🎯</span>
+                        <span><span className="font-semibold">JD keyword matrix</span> — which exact phrases you&apos;re missing.</span>
+                      </li>
+                      <li className="flex gap-2.5">
+                        <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">📝</span>
+                        <span><span className="font-semibold">Cover letter</span> in 3 tones, .docx download.</span>
+                      </li>
+                    </>
+                  ) : (
+                    <li className="flex gap-2.5">
+                      <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">🔑</span>
+                      <span><span className="font-semibold">Universal ATS keywords</span> recruiters scan for in your role.</span>
+                    </li>
+                  )}
+                  <li className="flex gap-2.5">
+                    <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">📄</span>
+                    <span><span className="font-semibold">.docx download</span> — single-column, ATS-safe.</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bento surface-mint p-5">
+                <span className="eyebrow">Tips for best results</span>
+                <ul className="mt-3 space-y-2 text-sm text-neutral-800">
+                  <li className="flex gap-2"><span>✅</span><span>Include <span className="font-semibold">numbers</span> wherever you can — %, ₹, headcount, time.</span></li>
+                  <li className="flex gap-2"><span>✅</span><span>Keep dates and titles intact — we won&apos;t invent any.</span></li>
+                  {mode === "tailor" && (
+                    <li className="flex gap-2"><span>✅</span><span>Paste the <span className="font-semibold">full JD</span> (or use the URL fetch).</span></li>
+                  )}
+                  <li className="flex gap-2"><span>✅</span><span>Use the <span className="font-semibold">Extras</span> field for wins your CV is missing.</span></li>
+                </ul>
+              </div>
+
+              <div className="flex justify-center">
+                <span className="sticker text-neutral-700">
+                  <span className="text-base leading-none">🔒</span>
+                  <span>Sent to Gemini · <span className="font-semibold text-neutral-900">never stored</span>.</span>
+                </span>
+              </div>
+            </aside>
           )}
-
-          {/* Helper / preview panel */}
-          <aside className="space-y-4">
-            <div className="bento surface-lavender p-5 sm:p-6">
-              <span className="eyebrow">What you&apos;ll get</span>
-              <ul className="mt-3 space-y-2.5 text-sm text-neutral-800">
-                <li className="flex gap-2.5">
-                  <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">📊</span>
-                  <span><span className="font-semibold">ATS score 0–100</span> with category breakdown (keywords, format, impact, clarity).</span>
-                </li>
-                <li className="flex gap-2.5">
-                  <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">✍️</span>
-                  <span><span className="font-semibold">Bullet-by-bullet rewrites</span> — before vs after, with the reasoning.</span>
-                </li>
-                {mode === "tailor" ? (
-                  <li className="flex gap-2.5">
-                    <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">🎯</span>
-                    <span><span className="font-semibold">JD keyword matrix</span> — which exact phrases you&apos;re missing.</span>
-                  </li>
-                ) : (
-                  <li className="flex gap-2.5">
-                    <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">🔑</span>
-                    <span><span className="font-semibold">Universal ATS keywords</span> recruiters scan for in your role.</span>
-                  </li>
-                )}
-                <li className="flex gap-2.5">
-                  <span className="float-y mt-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-white/90 text-base shadow-sm ring-1 ring-black/[0.04]">🚩</span>
-                  <span><span className="font-semibold">Red flags</span> a recruiter would notice in 6 seconds.</span>
-                </li>
-              </ul>
-            </div>
-
-            <div className="bento surface-mint p-5 sm:p-6">
-              <span className="eyebrow">Tips for best results</span>
-              <ul className="mt-3 space-y-2 text-sm text-neutral-800">
-                <li className="flex gap-2"><span>✅</span><span>Include <span className="font-semibold">numbers</span> wherever you can — %, $, headcount, time.</span></li>
-                <li className="flex gap-2"><span>✅</span><span>Keep dates and titles intact — we won&apos;t invent any.</span></li>
-                {mode === "tailor" && (
-                  <li className="flex gap-2"><span>✅</span><span>Paste the <span className="font-semibold">full JD</span>, not just the title.</span></li>
-                )}
-                <li className="flex gap-2"><span>✅</span><span>Use the <span className="font-semibold">Extras</span> field to add wins your CV is missing.</span></li>
-              </ul>
-            </div>
-
-            <div className="flex justify-center">
-              <span className="sticker text-neutral-700">
-                <span className="text-base leading-none">🔒</span>
-                <span>Your CV is sent to Gemini and <span className="font-semibold text-neutral-900">never stored</span>.</span>
-              </span>
-            </div>
-          </aside>
         </section>
-
-        {/* CTA */}
-        <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
-          <button
-            onClick={run}
-            disabled={loading}
-            className="cta-sheen squish glow-purple inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-purple-600 via-fuchsia-600 to-pink-600 px-6 py-3.5 text-base font-bold text-white disabled:cursor-not-allowed disabled:from-neutral-300 disabled:via-neutral-300 disabled:to-neutral-300 disabled:shadow-none"
-          >
-            {loading ? (
-              <>
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                <span>Analysing your CV…</span>
-              </>
-            ) : (
-              <>
-                <span className="text-lg leading-none">{mode === "polish" ? "✨" : "🎯"}</span>
-                <span>{mode === "polish" ? "Polish my CV" : "Tailor my CV to this JD"}</span>
-                <span>→</span>
-              </>
-            )}
-          </button>
-          <QuotaBadge tool="studio" refreshKey={quotaRefresh} />
-          {error && (
-            <div className="flex items-start gap-2 rounded-xl border border-red-200 bg-red-50/70 px-3.5 py-2.5 text-sm text-red-800">
-              <span className="text-base leading-none">⚠️</span>
-              <span className="font-medium">{error}</span>
-            </div>
-          )}
-        </div>
 
         {polishResult && <PolishResultsView result={polishResult} />}
         {tailorResult && (
