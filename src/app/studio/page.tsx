@@ -365,7 +365,7 @@ function PolishResultsView({ result }: { result: PolishOutput }) {
 
       <BulletDiffList bullets={result.rewritten_bullets} />
 
-      <DownloadDocxButton polish={result} baseFilename="CareerCompass-ATS-Resume" />
+      <LatexExportButton polish={result} baseFilename="CareerCompass-ATS-Resume" />
 
       <FeedbackWidget
         surface="studio_polish"
@@ -446,7 +446,7 @@ function TailorResultsView({
         </Panel>
       )}
 
-      <DownloadDocxButton tailor={result} baseFilename="CareerCompass-Tailored-Resume" />
+      <LatexExportButton tailor={result} baseFilename="CareerCompass-Tailored-Resume" />
 
       <FeedbackWidget
         surface="studio_tailor"
@@ -690,7 +690,7 @@ function CopyButton({ text, className = "" }: { text: string; className?: string
 
 /* ==================== Download .docx ==================== */
 
-function DownloadDocxButton({
+function LatexExportButton({
   polish,
   tailor,
   baseFilename,
@@ -702,21 +702,28 @@ function DownloadDocxButton({
   const [downloading, setDownloading] = useState(false);
   const structured = polish?.structured_resume || tailor?.structured_resume;
 
+  async function fetchLatex(): Promise<string | null> {
+    if (!structured) return null;
+    const res = await fetch("/api/studio/export", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ structured_resume: structured, filename: baseFilename }),
+    });
+    if (!res.ok) return null;
+    return res.text();
+  }
+
   async function handleDownload() {
     if (!structured) return;
     setDownloading(true);
     try {
-      const res = await fetch("/api/studio/export", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ structured_resume: structured, filename: baseFilename }),
-      });
-      if (!res.ok) throw new Error("Download failed");
-      const blob = await res.blob();
+      const latex = await fetchLatex();
+      if (!latex) throw new Error("Download failed");
+      const blob = new Blob([latex], { type: "application/x-tex; charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${baseFilename}.docx`;
+      a.download = `${baseFilename}.tex`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -728,24 +735,58 @@ function DownloadDocxButton({
     }
   }
 
+  function handleOverleaf() {
+    if (!structured) return;
+    // Fetch LaTeX then submit via form POST to Overleaf
+    fetchLatex().then((latex) => {
+      if (!latex) {
+        alert("Failed to generate LaTeX. Try again.");
+        return;
+      }
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = "https://www.overleaf.com/docs";
+      form.target = "_blank";
+      const input = document.createElement("textarea");
+      input.name = "snip";
+      input.value = latex;
+      input.style.display = "none";
+      form.appendChild(input);
+      document.body.appendChild(form);
+      form.submit();
+      form.remove();
+    });
+  }
+
   if (!structured) return null;
 
   return (
     <div className="rounded-2xl border border-purple-400/30 bg-gradient-to-r from-purple-400/10 to-indigo-400/10 p-5 shadow-sm">
-      <div className="flex flex-wrap items-center justify-between gap-3">
+      <div className="flex flex-col gap-3">
         <div>
-          <div className="text-base font-bold text-white"><FileText className="mr-1 inline h-4 w-4" /> Download as ATS-safe .docx</div>
+          <div className="text-base font-bold text-white"><FileText className="mr-1 inline h-4 w-4" /> Export ATS-optimized resume</div>
           <p className="text-sm text-white/80">
-            Single-column, dates right-aligned, no tables — exactly what every ATS expects.
+            LaTeX source — compiles to a pixel-perfect, single-column PDF that every ATS parses flawlessly.
           </p>
         </div>
-        <button
-          onClick={handleDownload}
-          disabled={downloading}
-          className="rounded-xl bg-purple-700 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-purple-800 disabled:opacity-60"
-        >
-          {downloading ? "Preparing…" : "Download .docx"}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={handleDownload}
+            disabled={downloading}
+            className="rounded-xl bg-purple-700 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:bg-purple-800 disabled:opacity-60"
+          >
+            {downloading ? "Preparing…" : "Download .tex"}
+          </button>
+          <button
+            onClick={handleOverleaf}
+            className="rounded-xl border border-emerald-400/40 bg-emerald-400/10 px-5 py-2.5 text-sm font-bold text-emerald-200 shadow-md hover:bg-emerald-400/20"
+          >
+            Open in Overleaf →
+          </button>
+        </div>
+        <p className="text-xs text-white/50">
+          Paste into <a href="https://www.overleaf.com" target="_blank" rel="noreferrer" className="underline hover:text-white/70">Overleaf</a> to compile to PDF instantly. No account needed for viewing.
+        </p>
       </div>
     </div>
   );

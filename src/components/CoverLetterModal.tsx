@@ -104,7 +104,7 @@ export default function CoverLetterModal({
     }
   }
 
-  async function downloadDocx() {
+  async function downloadTex() {
     if (!letter) return;
     setDownloading(true);
     try {
@@ -115,11 +115,12 @@ export default function CoverLetterModal({
         body: JSON.stringify({ kind: "cover_letter", cover_letter: letter, filename: baseFilename }),
       });
       if (!res.ok) throw new Error("Download failed");
-      const blob = await res.blob();
+      const latex = await res.text();
+      const blob = new Blob([latex], { type: "application/x-tex; charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = `${baseFilename}.docx`;
+      a.download = `${baseFilename}.tex`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -248,11 +249,11 @@ export default function CoverLetterModal({
                 </button>
                 <button
                   type="button"
-                  onClick={downloadDocx}
+                  onClick={downloadTex}
                   disabled={downloading}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-purple-700 px-3 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-800 disabled:opacity-60"
                 >
-                  {downloading ? "Preparing…" : "📄 Download .docx"}
+                  {downloading ? "Preparing…" : "📄 Download .tex"}
                 </button>
                 <button
                   type="button"
