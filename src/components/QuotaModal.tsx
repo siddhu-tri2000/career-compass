@@ -52,7 +52,7 @@ export default function QuotaModal({ state, onClose }: QuotaModalProps) {
       >
         <div className="mb-1 flex items-start justify-between">
           <h3 className="text-[18px] font-semibold tracking-tight text-white">
-            {state.kind === "sign_in" ? "You've used today's free tries" : "You've hit today's limit"}
+            {state.kind === "sign_in" ? "Sign in to keep going" : "You've hit today's limit"}
           </h3>
           <button
             onClick={onClose}
@@ -103,7 +103,7 @@ function SignInBody({ tool }: { tool: "map" | "ghost" | "studio" }) {
     <>
       <p className="mt-1 mb-5 text-[13px] leading-relaxed text-white/60">
         Sign in (one click) to use <strong className="text-white">{TOOL_LABEL[tool]}</strong> —
-        you&apos;ll get <strong className="text-white">5 free runs per day</strong>, and your work is saved.
+        you&apos;ll get <strong className="text-white">5 free runs per day</strong>, saved history, and more.
       </p>
 
       <div className="space-y-2.5">

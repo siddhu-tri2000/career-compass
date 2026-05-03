@@ -56,10 +56,10 @@ export default function QuotaBadge({ refreshKey, className = "" }: QuotaBadgePro
     return (
       <span
         className={`inline-flex items-center gap-1.5 rounded-full border border-white/[0.1] bg-white/[0.04] px-2.5 py-0.5 text-[11px] font-semibold text-white/80 ${className}`}
-        title={`Sign in to use the tools — ${data.limit} free runs/day across all tools.`}
+        title={`${data.remaining} of ${data.limit} free try left. Sign in for ${5} runs/day.`}
       >
         <Lock className="h-3 w-3" strokeWidth={2} />
-        <span>Sign in for {data.limit} runs/day</span>
+        <span>{data.remaining > 0 ? `${data.remaining} free try · Sign in for more` : "Sign in for 5 runs/day"}</span>
       </span>
     );
   }
